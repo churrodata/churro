@@ -7,21 +7,21 @@ Multiple pipelines can be created which act as a data ingest processor.  The pip
 Pipeline processing includes data transformations.  More significant data processing logic can be added using churro framework features.
 These concepts and more are detailed within the following links:
 
-* [Pipelines](#Pipelines)
-* [Transform Functions](#Transform Functions)
-* [Transform Rules](#Transform Rules)
-* [Certificates](#Certificates)
-* [Pipeline Users](#Pipeline Users)
-* [Extract Sources](#Extract Sources)
-* [Extract Data Samples](#Extract Data Samples)
-* [Authentication](#Authentication)
-* [User Authorization](#User Authorization)
-* [sftp Client Setup](#sftp Client Setup)
+* [Pipelines](#pipelines)
+* [Transform Functions](#transform-functions)
+* [Transform Rules](#transform-rules)
+* [Certificates](#certificates)
+* [Pipeline Users](#pipeline-users)
+* [Extract Sources](#extract-sources)
+* [Extract Data Samples](#extract-data-samples)
+* [Authentication](#authentication)
+* [User Authorization](#user-authorization)
+* [sftp Client Setup](#sftp-client-setup)
 
 
 ## First Steps
 
-* [Creating Your First Pipeline](#Creating Your First Pipeline)
+* [Creating Your First Pipeline](#creating-your-first-pipeline)
 
 ## Pipelines
 Pipelines are application components that process ingested data including the persistence of the processed data.
