@@ -75,6 +75,7 @@ Users within churro are defined at the churro application level, and then also a
 You first create a churro user using the churro-ui.  Then you grant that user access to a specific Pipeline once the Pipeline is created.
 
 Users can either own a Read, Write, or Admin privilege.  Privileges in churro work this way:
+
 | Priv       | Within churro    | Within a Pipeline    |
 | :------------- | :---------- | :---------- |
 |  Read | Read pipelines   | Read pipelines    |
