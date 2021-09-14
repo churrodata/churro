@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: churro
+    service: churro-extension
+  name: churro-extension
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      name: churro-extension
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: churro-extension
+        name: churro-extension
+        service: churro-extension
+    spec:
+      containers:
+      - command:
+        - /usr/local/bin/churro-extension
+        - -servicecert
+        - /servicecerts
+        - -dbcert
+        - /dbcerts
+        - -debug
+        - "true"
+        env:
+        - name: CHURRO_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: CHURRO_PIPELINE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        image: churrodata/churro-extension
+        imagePullPolicy: IfNotPresent
+        name: churro-extension
+        volumeMounts:
+        - mountPath: /dbcerts
+          name: db-certs
+        - mountPath: /servicecerts
+          name: service-certs
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      serviceAccount: churro
+      serviceAccountName: churro
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: db-certs
+        secret:
+          defaultMode: 256
+          secretName: cockroachdb.client.root
+      - name: service-certs
+        secret:
+          defaultMode: 256
+          secretName: churro.client.root

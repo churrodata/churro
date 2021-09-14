@@ -1,0 +1,17 @@
+apiVersion: churro.project.io/uiv1alpha1
+kind: Churroui
+metadata:
+  name: fuzzy
+  labels:
+    name: fuzzy
+status:
+  active: "true"
+  standby:
+    - "AAPL"
+    - "AMZN"
+spec:
+  databasetype: cockroachdb
+  servicetype: ClusterIP
+  accessmode: ReadWriteOnce
+  storagesize: 1G
+  storageclassname: hostpath

@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: churro
+    pipeline: somepipeline
+    service: churro-ctl
+  name: churro-ctl
+spec:
+  containers:
+  - command:
+    - /usr/local/bin/churro-ctl
+    - "-servicecert"
+    - "/servicecerts"
+    - "-dbcert"
+    - "/dbcerts"
+    - "-debug"
+    - "true"
+    env:
+    - name: CHURRO_NAMESPACE
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.namespace
+    image: churrodata/churro-ctl
+    imagePullPolicy: IfNotPresent
+    name: churro-ctl
+    volumeMounts:
+    - mountPath: /dbcerts
+      name: db-certs
+    - mountPath: /servicecerts
+      name: service-certs
+  restartPolicy: Always
+  imagePullSecrets:
+  - name: regcred
+  serviceAccount: churro
+  serviceAccountName: churro
+  volumes:
+  - name: db-certs
+    secret:
+      defaultMode: 256
+      secretName: cockroachdb.client.root
+  - name: service-certs
+    secret:
+      defaultMode: 256
+      secretName: churro.client.root

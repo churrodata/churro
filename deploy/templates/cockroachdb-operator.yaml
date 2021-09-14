@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cockroach-operator
+  namespace: churro
+  labels:
+    app: cockroach-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cockroach-operator
+  template:
+    metadata:
+      labels:
+        app: cockroach-operator
+    spec:
+      serviceAccountName: cockroach-operator-sa
+      containers:
+        - name: cockroach-operator
+          image: cockroachdb/cockroach-operator:v1.6.12-rc.2
+          imagePullPolicy: IfNotPresent
+          # uncomment this to enable different new features
+          # args: ["-feature-gates","PartitionedUpdate=true,UseDecommission=true,Upgrade=false, CrdbVersionValidator=false"]
+          # this is for openshift only
+          # args: ["-feature-gates", "Upgrade=false,ResizePVC=false"]
+          
+          # different new features are commented out below
+          # uncomment them to enable the featureGate
+          args: 
+            - feature-gates
+            - Upgrade=false
+            # the below log level accepts "info" "debug" "warn" or "error"
+            - -zap-log-level
+            - info
+              # - debug
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: cockroachdb
+            - name: RELATED_IMAGE_COCKROACH_v20_2_5
+              value: cockroachdb/cockroach:v20.2.5
+            - name: RELATED_IMAGE_COCKROACH_v20_1_12
+              value: cockroachdb/cockroach:v20.1.12
+            - name: RELATED_IMAGE_COCKROACH_v19_2_12
+              value: cockroachdb/cockroach:v19.2.12
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi

@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: churro
+    pipeline: pipeline1
+    service: churro-watch
+    manager: churro-operator
+  name: churro-watch-sftp
+  namespace: pipeline1
+  ownerReferences:
+  - apiVersion: churro.project.io/v1alpha1
+    blockOwnerDeletion: true
+    controller: true
+    kind: Pipeline
+    name: pipeline1
+    uid: 8c559d7c-ad2c-4980-8b84-935cac8835ca
+spec:
+  ports:
+  - name: sftp
+    port: 2022
+    protocol: TCP
+    targetPort: 2022
+  - name: sftp-web
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: churro
+    pipeline: pipeline1
+    service: churro-watch
+  type: ClusterIP

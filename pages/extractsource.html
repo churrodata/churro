@@ -1,0 +1,230 @@
+{{ define "layout" }}
+<html>
+    <head>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    </head>
+    <body>
+        {{ template "navbar" .UserEmail}}
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/pipelines/{{.PipelineID}}">Pipeline ({{.PipelineName}})</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Data Source ({{.ExtractSource.Name}})</li>
+            </ol>
+        </nav>
+
+        <h3>Extract Source</h3>
+
+        {{$pid := .PipelineID }}
+        {{$wdid := .ExtractSourceID }}
+        {{$wdname := .ExtractSource.Name }}
+        {{$pname := .PipelineName }}
+
+        <br>
+        <form action="/pipelines/{{.PipelineID}}/updateextractsource/{{.ExtractSourceID}}" method="post">
+            <div class="form-group row">
+                <label for="name" class="col-sm-2 col-form-label">Name</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" id="name" name="name" value="{{.ExtractSource.Name}}">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="path" class="col-sm-2 col-form-label">Path</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" id="path" name="path" value="{{.ExtractSource.Path}}">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="scheme" class="col-sm-2 col-form-label">Scheme</label>
+                <div class="col-sm-4">
+                    <select class="form-control" id="scheme" name=scheme data-toggle="tooltip" title="type of data to process" value="{{.ExtractSource.Scheme}}">
+                        <option {{ if eq .ExtractSource.Scheme "xlsx"}} selected {{ end }} >xlsx</option>
+                        <option {{ if eq .ExtractSource.Scheme "csv"}} selected {{ end }} >csv</option>
+                        <option {{ if eq .ExtractSource.Scheme "xml"}} selected {{ end }} >xml</option>
+                        <option {{ if eq .ExtractSource.Scheme "json"}} selected {{ end }} >json</option>
+                        <option {{ if eq .ExtractSource.Scheme "jsonpath"}} selected {{ end }} >jsonpath</option>
+                        <option {{ if eq .ExtractSource.Scheme "api"}} selected {{ end }} >api</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="regex" class="col-sm-2 col-form-label">Regex</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" id="regex" name="regex" value="{{.ExtractSource.Regex}}">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="tablename" class="col-sm-2 col-form-label">Table Name</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" id="tablename" name="tablename" value="{{.ExtractSource.Tablename}}">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="cronexpression" class="col-sm-2 col-form-label">Poll cron Expression</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" id="cronexpression" name="cronexpression" value="{{.ExtractSource.Cronexpression}}">
+                </div>
+            </div>
+            {{ if .ExtractSource.Initialized }}
+            {{ else }}
+            <button type="submit" class="btn btn-primary" >Save</button>
+            {{ end }}
+            <a class="btn btn-danger" href="/pipelines/{{.PipelineID}}/deleteextractsources/{{.ExtractSourceID}}">Delete</a>
+            {{ if eq .ExtractSource.Scheme "api"}} 
+              {{ if .ExtractSource.Running }}
+            <a class="btn btn-danger" href="/pipelines/{{.PipelineID}}/stopextractsource/{{.ExtractSourceID}}">Stop</a>
+              {{ else }}
+            <a class="btn btn-success" href="/pipelines/{{.PipelineID}}/startextractsource/{{.ExtractSourceID}}">Start</a>
+              {{ end }}
+            {{ end }}
+            <input type="hidden" id="extractsourceid" name="extractsourceid" value="{{.ExtractSourceID}}">
+            <input type="hidden" id="pipelineid" name="pipelineid" value="{{.PipelineID}}">
+            <input type="hidden" id="pipelinename" name="pipelinename" value="{{.PipelineName}}">
+            <input type="hidden" id="extractsourcename" name="extractsourcename" value="{{.ExtractSource.Name}}">
+        </form>
+        {{ if ne .ErrorText "" }}
+        <div class="alert alert-danger" role="alert">
+            {{ .ErrorText }}
+        </div>
+        {{ end }}
+
+        {{ if ne .StatusText "" }}
+        <div class="alert alert-success" role="alert">
+            {{ .StatusText }}
+        </div>
+        {{ end }}
+
+        <ul class="nav nav-tabs mb-3" id="mytab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="pills-uploadschema-tab" data-toggle="pill" href="#pills-uploadschema" role="tab" aria-controls="pills-uploadschema" aria-selected="false">Upload Schema</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pills-stats-tab" data-toggle="pill" href="#pills-stats" role="tab" aria-controls="pills-stats" aria-selected="false">Stats</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pills-extractrules-tab" data-toggle="pill" href="#pills-extractrules" role="tab" aria-controls="pills-extractrules" aria-selected="false">Extract Rules</a>
+            </li>
+            {{ if ne .ExtractSource.Scheme "api"}} 
+            <li class="nav-item">
+                <a class="nav-link " id="pills-upload-tab" data-toggle="pill" href="#pills-upload" role="tab" aria-controls="pills-upload" aria-selected="true">Upload Files</a>
+            </li>
+            {{ end }}
+            <li class="nav-item">
+                <a class="nav-link" id="pills-extensions-tab" data-toggle="pill" href="#pills-extensions" role="tab" aria-controls="pills-extensions" aria-selected="false">Extensions</a>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="Content">
+            <div class="tab-pane fade show active" id="pills-uploadschema" role="tabpanel" aria-labelledby="pills-uploadschema">
+                <form
+                        enctype="multipart/form-data"
+                        action="/pipelines/{{.PipelineID}}/extractsource/{{.ExtractSourceID}}/uploadschema" method="post">
+                    <div class="form-group row">
+                        <input type="file" name="myFile" />
+                        <input type="submit" value="Upload Schema" />
+                    </div>
+                    <input type="hidden" id="extractsourceid" name="extractsourceid" value="{{.ExtractSourceID}}">
+                    <input type="hidden" id="pipelineid" name="pipelineid" value="{{.PipelineID}}">
+                    <input type="hidden" id="pipelinename" name="pipelinename" value="{{.PipelineName}}">
+                    <input type="hidden" id="test" name="test" value="{{.StatusText}}">
+                </form>
+            </div>
+
+            <div class="tab-pane fade show " id="pills-upload" role="tabpanel" aria-labelledby="pills-upload-tab">
+                <form
+                        action="/pipelines/{{.PipelineID}}/extractsource/{{.ExtractSourceID}}/uploadurl" method="post">
+                    <div class="form-group row">
+                        <label for="fileurl" class="col-sm-1 col-form-label"> URL</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" id="fileurl" name="fileurl">
+                        </div>
+                    </div>
+                    <input type="submit" value="Process URL" />
+                    <input type="hidden" id="extractsourceid" name="extractsourceid" value="{{.ExtractSourceID}}">
+                    <input type="hidden" id="pipelineid" name="pipelineid" value="{{.PipelineID}}">
+                    <input type="hidden" id="pipelinename" name="pipelinename" value="{{.PipelineName}}">
+                    <input type="hidden" id="test" name="test" value="{{.StatusText}}">
+                </form>
+                <form
+                        enctype="multipart/form-data"
+                        action="/pipelines/{{.PipelineID}}/extractsource/{{.ExtractSourceID}}/uploadfile" method="post">
+                    <div class="form-group row">
+                        <label for="myFile" class="col-sm-1 col-form-label">File</label>
+                        <input type="file" name="myFile" />
+                    </div>
+                    <input type="submit" value="Upload File" />
+                    <input type="hidden" id="extractsourceid" name="extractsourceid" value="{{.ExtractSourceID}}">
+                    <input type="hidden" id="pipelineid" name="pipelineid" value="{{.PipelineID}}">
+                    <input type="hidden" id="pipelinename" name="pipelinename" value="{{.PipelineName}}">
+                    <input type="hidden" id="test" name="test" value="{{.StatusText}}">
+                </form>
+            </div>
+
+            <div class="tab-pane fade" id="pills-stats" role="tabpanel" aria-labelledby="pills-stats-tab">
+
+                <form>
+                    {{range .Metrics}}
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">{{.Name}}</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" value="{{.Value}}">
+                        </div>
+                    </div>
+                    {{end}}
+                </form>
+            </div>
+
+            <div class="tab-pane fade" id="pills-extractrules" role="tabpanel" aria-labelledby="pills-extractrules-tab">
+                {{ if .ExtractSource.Initialized }}
+                {{ else }}
+                <a class="btn btn-primary" href="/pipelines/{{.PipelineID}}/extractsources/{{.ExtractSourceID}}/rule/show-create" role="button" data-toggle="tooltip" title="add extract rule">
+                    <img src="/static/plus-circle.svg" width="30" height="30" class="d-inline-block align-top" alt="create extract rule">
+                </a>
+                {{ end }}
+                <ul class="list-group">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Column</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{range .ExtractRules}}
+                            <tr>
+                                <td><a href="/pipelines/{{$pid}}/extractsources/{{$wdid}}/rule/{{.ID}}">{{.ColumnName}}</a></td>
+                            </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+                </ul>
+            </div>
+
+            <div class="tab-pane fade" id="pills-extensions" role="tabpanel" aria-labelledby="pills-extensions-tab">
+                <a class="btn btn-primary" href="/pipelines/{{.PipelineID}}/extractsources/{{.ExtractSourceID}}/extension/show-create" role="button" data-toggle="tooltip" title="add extension">
+                    <img src="/static/plus-circle.svg" width="30" height="30" class="d-inline-block align-top" alt="create extension">
+                </a>
+                <ul class="list-group">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Extension</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{range .Extensions}}
+                            <tr>
+                                <td><a href="/pipelines/{{$pid}}/extractsources/{{$wdid}}/extension/{{.ID}}">{{.ExtensionName}}</a></td>
+                            </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+                </ul>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    </body>
+</html>
+{{ end }}

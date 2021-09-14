@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package extractsource;
+
+option go_package = "rpc/extractsource";
+
+service ExtractSource {
+  rpc Ping(PingRequest) returns (PingResponse);
+  rpc CreateExtractSource(CreateExtractSourceRequest) returns (CreateExtractSourceResponse);
+  rpc DeleteExtractSource(DeleteExtractSourceRequest) returns (DeleteExtractSourceResponse);
+
+  rpc UploadToExtractSource(stream UploadToExtractSourceRequest) returns (UploadToExtractSourceResponse);
+  rpc UploadByURL(UploadByURLRequest) returns (UploadByURLResponse);
+  rpc StartAPI(StartAPIRequest) returns (StartAPIResponse);
+  rpc StopAPI(StopAPIRequest) returns (StopAPIResponse);
+
+}
+
+message UploadInfo {
+  string namespace = 1;
+  string extractSourceID = 2;
+  string fileType = 3;
+  string fileName = 4;
+}
+
+message UploadToExtractSourceRequest {
+  oneof data {
+  UploadInfo info = 1;
+  bytes chunk_data = 2;
+  };
+}
+
+message UploadToExtractSourceResponse {
+  string filePath = 1;
+  uint32 fileSize = 2;
+}
+
+message PingRequest {
+}
+
+message PingResponse {
+}
+
+message CreateExtractSourceRequest {
+}
+message CreateExtractSourceResponse {
+}
+
+message DeleteExtractSourceRequest {
+  string extractSourceName = 1;
+}
+message DeleteExtractSourceResponse {
+ string statusMessage = 1;
+  int32 statusCode = 2;
+}
+
+message UploadByURLRequest {
+  string fileURL = 1;
+  string extractSourceID = 2;
+  string pipelineID = 3;
+}
+message UploadByURLResponse {
+ string statusMessage = 1;
+  int32 statusCode = 2;
+}
+
+message StartAPIRequest {
+  string extractSourceID = 1;
+  string pipelineID = 2;
+}
+message StartAPIResponse {
+ string statusMessage = 1;
+  int32 statusCode = 2;
+}
+message StopAPIRequest {
+  string extractSourceID = 1;
+  string pipelineID = 2;
+}
+message StopAPIResponse {
+ string statusMessage = 1;
+  int32 statusCode = 2;
+}

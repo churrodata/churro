@@ -1,0 +1,80 @@
+{{ define "layout" }}
+<html>
+    <head>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    </head>
+    <body>
+
+        {{ template "navbar" .UserEmail }}
+
+        <h3>Create Pipeline</h3>
+        <form action="/pipeline" method="post">
+            <div class="form-group row">
+                <label for="pipelinename" class="col-sm-2 col-form-label">Pipeline Name</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" name="pipelinename" id="pipelinename" aria-describedby="pipelineNameHelp" placeholder="Enter pipeline name" data-toggle="tooltip" title="pipeline name of your choice">
+                    <small id="pipelineHelp" class="form-text text-muted">Pipeline name which also is used as it's namespace name.</small>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="maxjobs" class="col-sm-2 col-form-label">Max Jobs</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" name="maxjobs" id="maxjobs" value="10" data-toggle="tooltip" aria-describedby="maxjobsHelp" title="max concurrent extract jobs">
+                    <small id="maxjobsHelp" class="form-text text-muted">Maximum concurrent extract jobs.</small>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="storagesize" class="col-sm-2 col-form-label">Storage Size</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" name="storagesize" id="storagesize" value="1G" data-toggle="tooltip" aria-describedby="storagesizeHelp" title="storage size for database">
+                    <small id="storagesizeHelp" class="form-text text-muted">Storage size.</small>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="accessmode" class="col-sm-2 col-form-label">Storage Access Mode</label>
+                <div class="col-sm-4">
+                    <select class="form-control" id="accessmode" name="accessmode" data-toggle="tooltip" title="type of storage accessMode to use">
+                        <option>ReadWriteMany</option>
+                        <option>ReadWriteOnce</option>
+                    </select>
+                    <small id="accessmodeHelp" class="form-text text-muted">AccessMode for storage.</small>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="storageclassname" class="col-sm-2 col-form-label">Storage Class Name</label>
+                <div class="col-sm-4">
+                <select class="form-control" id="storageclassname" name="storageclassname" data-toggle="tooltip" title="storage class name">
+            {{ range .StorageClasses }}
+            <option>{{.}}</option>
+            {{ end }}
+            </select>
+                    <small id="storageclassnameHelp" class="form-text text-muted">Storage class name.</small>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="dbtype" class="col-sm-2 col-form-label">Database Backend</label>
+                <div class="col-sm-4">
+                    <select class="form-control" id="dbtype" name="dbtype" data-toggle="tooltip" title="type of database backend to provision">
+                        <option>cockroachdb</option>
+                        <option>mysql</option>
+                        <option>singlestore</option>
+                    </select>
+                    <small id="dbtypeHelp" class="form-text text-muted">Database backend type.</small>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <input type="hidden" id="pipelinename" name="pipelinename" value="{{.PipelineName}}">
+
+        </form>
+        {{ if ne .ErrorText "" }}
+        <div class="alert alert-danger" role="alert">
+            {{ .ErrorText }}
+        </div>
+        {{ end }}
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    </body>
+</html>
+
+{{ end }}

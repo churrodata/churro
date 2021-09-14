@@ -1,0 +1,260 @@
+syntax = "proto3";
+
+package ctl;
+
+option go_package = "rpc/ctl";
+
+service Ctl {
+  rpc Ping(PingRequest) returns (PingResponse);
+
+  rpc CreateTransformFunction(CreateTransformFunctionRequest) returns (CreateTransformFunctionResponse);
+  rpc DeleteTransformFunction(DeleteTransformFunctionRequest) returns (DeleteTransformFunctionResponse);
+  rpc UpdateTransformFunction(UpdateTransformFunctionRequest) returns (UpdateTransformFunctionResponse);
+  rpc GetTransformFunction(GetTransformFunctionRequest) returns (GetTransformFunctionResponse);
+  rpc GetTransformFunctions(GetTransformFunctionsRequest) returns (GetTransformFunctionsResponse);
+
+  rpc UpdateExtractRule(UpdateExtractRuleRequest) returns (UpdateExtractRuleResponse);
+  rpc DeleteExtractRule(DeleteExtractRuleRequest) returns (DeleteExtractRuleResponse);
+  rpc CreateExtractRule(CreateExtractRuleRequest) returns (CreateExtractRuleResponse);
+  rpc GetExtractRule(GetExtractRuleRequest) returns (GetExtractRuleResponse);
+  rpc GetExtractRules(GetExtractRulesRequest) returns (GetExtractRulesResponse);
+
+  rpc UpdateExtension(UpdateExtensionRequest) returns (UpdateExtensionResponse);
+  rpc DeleteExtension(DeleteExtensionRequest) returns (DeleteExtensionResponse);
+  rpc CreateExtension(CreateExtensionRequest) returns (CreateExtensionResponse);
+  rpc GetExtension(GetExtensionRequest) returns (GetExtensionResponse);
+  rpc GetExtensions(GetExtensionsRequest) returns (GetExtensionsResponse);
+
+  rpc UpdateExtractSource(UpdateExtractSourceRequest) returns (UpdateExtractSourceResponse);
+  rpc DeleteExtractSource(DeleteExtractSourceRequest) returns (DeleteExtractSourceResponse);
+  rpc GetExtractSource(GetExtractSourceRequest) returns (GetExtractSourceResponse);
+  rpc GetExtractSources(GetExtractSourcesRequest) returns (GetExtractSourcesResponse);
+  rpc CreateExtractSource(CreateExtractSourceRequest) returns (CreateExtractSourceResponse);
+  rpc GetPipeline(GetPipelineRequest) returns (GetPipelineResponse);
+  rpc GetPipelineStatus(GetPipelineStatusRequest) returns (GetPipelineStatusResponse);
+  rpc DeleteJobs(DeleteJobsRequest) returns (DeleteJobsResponse);
+  rpc GetPipelineJobLog(GetPipelineJobLogRequest) returns (GetPipelineJobLogResponse);
+  rpc GetExtractData(GetExtractDataRequest) returns (GetExtractDataResponse);
+}
+
+message GetPipelineRequest {
+  string namespace = 1; 
+}
+
+
+message GetPipelineResponse {
+  string loaderStatus = 1;
+  string extractsourceStatus = 2;
+  string databaseConsoleURL = 3;
+}
+
+message GetPipelineStatusRequest {
+  string namespace = 1; 
+}
+
+message PipelineMetric {
+  string name = 1; 
+  string value = 2; 
+}
+
+
+message PipelineJobStatus {
+  string name = 1; 
+  string datasource = 2; 
+  int32 recordsLoaded = 3; 
+  string status = 4; 
+  string startDate = 5; 
+  string completedDate = 6; 
+  string fileName = 7; 
+  string tableName = 8; 
+}
+
+message GetPipelineStatusResponse {
+  repeated PipelineJobStatus jobs = 1;
+  repeated PipelineMetric metrics = 2;
+}
+
+message GetPipelineJobLogRequest {
+  string namespace = 1; 
+  string podname = 2; 
+}
+message GetPipelineJobLogResponse {
+  string logstring = 1;
+}
+
+message DeleteJobsRequest {
+  string namespace = 1; 
+  repeated PipelineJobStatus jobs = 2; 
+}
+
+message DeleteJobsResponse {
+}
+
+message PingRequest {
+}
+
+message PingResponse {
+}
+
+
+message CreateExtractSourceRequest {
+  string namespace = 1;
+  string extractSourceString = 2; 
+}
+message CreateExtractSourceResponse {
+ string ID = 1;
+}
+
+message DeleteExtractSourceRequest {
+  string namespace = 1; 
+  string extractSourceID = 2; 
+}
+message DeleteExtractSourceResponse {
+}
+message UpdateExtractSourceRequest {
+  string namespace = 1; 
+  string extractSourceString = 2; 
+}
+message UpdateExtractSourceResponse {
+}
+message GetExtractSourcesRequest {
+  string namespace = 1; 
+}
+message GetExtractSourcesResponse {
+ string extractSourcesString = 1;
+}
+message GetExtractSourceRequest {
+  string namespace = 1; 
+  string extractSourceID = 2; 
+}
+message GetExtractSourceResponse {
+ string extractSourceString = 1;
+ repeated PipelineMetric metrics = 2;
+}
+
+message CreateExtractRuleRequest {
+  string namespace = 1;
+  string extractRuleString = 2; 
+}
+message CreateExtractRuleResponse {
+ string ID = 1;
+}
+message DeleteExtractRuleRequest {
+  string namespace = 1;
+  string extractSourceID = 2; 
+  string extractRuleID = 3; 
+}
+message DeleteExtractRuleResponse {
+}
+message UpdateExtractRuleRequest {
+  string namespace = 1;
+  string extractSourceID = 2; 
+  string extractRuleString = 3; 
+}
+message UpdateExtractRuleResponse {
+}
+message GetExtractRuleRequest {
+  string namespace = 1;
+  string extractSourceID = 2; 
+  string extractRuleID = 3; 
+}
+message GetExtractRuleResponse {
+  string extractRuleString = 1;
+}
+message GetExtractRulesRequest {
+  string namespace = 1;
+  string extractSourceID = 2; 
+}
+message GetExtractRulesResponse {
+  string extractRulesString = 1;
+}
+
+message CreateTransformFunctionRequest {
+// functionString is the json version of a transform function
+  string namespace = 1;
+  string functionString = 2;
+}
+
+message CreateTransformFunctionResponse {
+ string ID = 1;
+}
+
+message UpdateTransformFunctionRequest {
+// functionString is the json version of a transform function
+  string namespace = 1;
+  string functionString = 2;
+}
+
+message UpdateTransformFunctionResponse {
+}
+
+message DeleteTransformFunctionRequest {
+  string namespace = 1;
+  string functionID = 2;
+}
+
+message DeleteTransformFunctionResponse {
+}
+
+message GetTransformFunctionRequest {
+  string namespace = 1;
+  string functionID = 2;
+}
+
+message GetTransformFunctionResponse {
+  string functionString = 1;
+}
+
+message GetTransformFunctionsRequest {
+  string namespace = 1;
+}
+
+message GetTransformFunctionsResponse {
+  string functionsString = 1;
+}
+
+message GetExtractDataRequest {
+  string namespace = 1;
+}
+
+message GetExtractDataResponse {
+  bytes extractData = 1;
+}
+
+message CreateExtensionRequest {
+  string namespace = 1;
+  string extensionString = 2; 
+}
+message CreateExtensionResponse {
+ string ID = 1;
+}
+message DeleteExtensionRequest {
+  string namespace = 1;
+  string extractSourceID = 2; 
+  string extensionID = 3; 
+}
+message DeleteExtensionResponse {
+}
+message UpdateExtensionRequest {
+  string namespace = 1;
+  string extractSourceID = 2; 
+  string extensionString = 3; 
+}
+message UpdateExtensionResponse {
+}
+message GetExtensionRequest {
+  string namespace = 1;
+  string extractSourceID = 2; 
+  string extensionID = 3; 
+}
+message GetExtensionResponse {
+  string extensionString = 1;
+}
+message GetExtensionsRequest {
+  string namespace = 1;
+  string extractSourceID = 2; 
+}
+message GetExtensionsResponse {
+  string extensionsString = 1;
+}
+

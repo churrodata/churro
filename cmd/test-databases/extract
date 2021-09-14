@@ -1,0 +1,12 @@
+kubectl -n churro get secret/cockroachdb-root \
+--template="{{index .data \"ca.crt\"}}" | base64 -d > ca.crt
+kubectl -n churro get secret/cockroachdb-root \
+--template="{{index .data \"tls.crt\"}}" | base64 -d > client.root.crt
+chmod 600 client.root.key
+kubectl -n churro get secret/cockroachdb-root \
+--template="{{index .data \"tls.key\"}}" | base64 -d > client.root.key
+kubectl -n churro get secret/cockroachdb-node \
+--template="{{index .data \"tls.crt\"}}" | base64 -d > node.crt
+kubectl -n churro get secret/cockroachdb-root \
+--template="{{index .data \"tls.key\"}}" | base64 -d > node.key
+chmod 600 node.key

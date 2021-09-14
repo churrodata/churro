@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: churro
+    pipeline: pipeline1
+    service: churro-extractsource
+  name: churro-extractsource
+spec:
+  containers:
+    - command:
+        - /usr/local/bin/churro-extractsource
+        - '-servicecert'
+        - /servicecerts
+        - '-dbcert'
+        - /dbcerts
+        - '-debug'
+        - 'true'
+      env:
+        - name: CHURRO_EXTRACT_IMAGE
+          value: churrodata/churro-extract:latest
+        - name: CHURRO_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+      image: churrodata/churro-extractsource:latest
+      imagePullPolicy: IfNotPresent
+      name: churro-extractsource
+      imagePullSecrets:
+        - name: regcred
+      volumeMounts:
+        - mountPath: /servicecerts
+          name: service-certs
+          readOnly: true
+        - mountPath: /dbcerts
+          name: db-certs
+          readOnly: true
+        - mountPath: /churro
+          name: churrodata
+          readOnly: false
+    - image: churrodata/churro-sftp:latest
+      imagePullPolicy: IfNotPresent
+      name: sftp
+      imagePullSecrets:
+        - name: regcred
+      volumeMounts:
+        - mountPath: /servicecerts
+          name: service-certs
+          readOnly: true
+        - mountPath: /dbcerts
+          name: db-certs
+          readOnly: true
+        - mountPath: /data
+          name: churrodata
+          readOnly: false
+  restartPolicy: Always
+  serviceAccount: churro
+  serviceAccountName: churro
+  volumes:
+    - name: db-certs
+      secret:
+        defaultMode: 256
+        secretName: cockroachdb.client.root
+    - name: service-certs
+      secret:
+        defaultMode: 256
+        secretName: churro.client.root
+    - name: churrodata
+      persistentVolumeClaim:
+        claimName: churrodata
+

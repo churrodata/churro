@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: churro-ui
+  name: churro-ui
+  namespace: churro
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      name: churro-ui
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: churro-ui
+        name: churro-ui
+    spec:
+      containers:
+      - env:
+        - name: CHURRO_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: PORT
+          value: "8080"
+        - name: DATABASE_TYPE
+          value: "cockroachdb"
+        image: churrodata/churro-ui:latest
+        imagePullPolicy: IfNotPresent
+        name: churro-ui
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /dbcerts
+          name: db-certs
+          readOnly: true
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: churro-ui
+      serviceAccountName: churro-ui
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: db-certs
+        projected:
+          defaultMode: 256
+          sources:
+          - secret:
+              items:
+              - key: ca.crt
+                path: ca.crt
+              - key: tls.crt
+                path: node.crt
+              - key: tls.key
+                path: node.key
+              name: cockroachdb-node
+          - secret:
+              items:
+              - key: tls.crt
+                path: client.root.crt
+              - key: tls.key
+                path: client.root.key
+              name: cockroachdb-root
+

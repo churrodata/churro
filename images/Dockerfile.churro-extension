@@ -1,0 +1,6 @@
+FROM fedora:latest
+
+COPY build/churro-extension /usr/local/bin
+
+# Run the churro-extension binary.
+ENTRYPOINT ["/usr/local/bin/churro-extension"]

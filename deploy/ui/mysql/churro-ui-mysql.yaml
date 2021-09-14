@@ -1,0 +1,15 @@
+apiVersion: mysql.presslabs.org/v1alpha1
+kind: MysqlCluster
+metadata:
+  name: churro-ui-mysql
+  namespace: churro
+spec:
+  replicas: 1
+  secretName: churro-ui-mysql-secret
+  volumeSpec:
+    persistentVolumeClaim:
+      storageClassName: hostpath
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

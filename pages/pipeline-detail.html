@@ -1,0 +1,275 @@
+{{ define "layout" }}
+<html>
+
+    <head>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+        <style type="text/css">
+/* Tabs*/
+section {
+    padding: 60px 0;
+}
+
+section .section-title {
+    text-align: center;
+    color: #0066ff;
+    margin-bottom: 50px;
+    text-transform: uppercase;
+}
+#tabs{
+    background: #0066ff;
+    color: #eee;
+}
+#tabs h6.section-title{
+    color: #eee;
+}
+
+#tabs .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+    color: #f3f3f3;
+    background-color: transparent;
+    border-color: transparent transparent #f3f3f3;
+    border-bottom: 4px solid !important;
+    font-size: 20px;
+    font-weight: bold;
+}
+#tabs .nav-tabs .nav-link {
+    border: 1px solid transparent;
+    border-top-left-radius: .25rem;
+    border-top-right-radius: .25rem;
+    color: #eee;
+    font-size: 20px;
+}
+        </style>
+    </head>
+
+    <body>
+        {{$pipelinename := .Name}}
+        {{$pipelineID := .ID}}
+        {{ template "navbar" .UserEmail }}
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Pipeline {{$pipelinename}}</li>
+            </ol>
+        </nav>
+
+        {{ if ne .ErrorText "" }}
+        <div class="alert alert-danger" role="alert">
+            {{ .ErrorText }}
+        </div>
+        {{ end }}
+
+        <section id="tabs">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <nav>
+                            <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
+                                <a class="nav-item nav-link" id="nav-extractsources-tab"  href="#nav-extractsources" role="tab" aria-controls="nav-extractsources" data-toggle="tab" aria-selected="false">Extract Sources</a>
+                                <a class="nav-item nav-link" id="nav-transform-functions-tab"  href="#nav-transform-functions" role="tab" aria-controls="nav-transform-functions" data-toggle="tab" aria-selected="false">Transform Functions</a>
+                                <a class="nav-item nav-link" id="nav-certs-tab"  href="#nav-certs" role="tab" aria-controls="nav-certs" data-toggle="tab" aria-selected="false">Certs</a>
+                                <a class="nav-item nav-link" id="nav-extract-tab"  href="#nav-extract" role="tab" aria-controls="nav-extract" data-toggle="tab" aria-selected="false">Extract</a>
+                                <a class="nav-item nav-link" id="nav-users-tab"  href="#nav-users" role="tab" aria-controls="nav-users" data-toggle="tab" aria-selected="false">Users</a>
+                                <a class="nav-item nav-link" id="nav-database-tab"  href="#nav-database" role="tab" aria-controls="nav-database" data-toggle="tab" aria-selected="false">Database</a>
+                                <a class="nav-item nav-link" id="nav-jobs-tab" href="#nav-jobs" role="tab" aria-controls="nav-jobs" data-toggle="tab" aria-selected="false">Jobs</a>
+                                <a class="nav-item nav-link" id="nav-stats-tab"  href="#nav-stats" role="tab" aria-controls="nav-stats" data-toggle="tab" aria-selected="false">Stats</a>
+                            </div>
+                        </nav>
+        </section>
+
+                        <div class="tab-content py-3 px-3 px-sm-0" id="nav-tab-content">
+
+                            <div class="tab-pane fade active" id="nav-transform-functions" role="tabpanel">
+                                <a class="btn btn-primary" href="{{$pipelineID}}/tfunctions/show-create?pipelineID={{$pipelineID}}&pipelinename={{$pipelinename}}" role="button" data-toggle="tooltip" title="add transform function" data-toggle="tooltip" title="add transform function">
+                                    <img src="/static/plus-circle.svg" width="30" height="30" class="d-inline-block align-top" alt="add function">
+                                </a>
+                                <ul class="list-group">
+                                    {{range .TransformFunctions}}
+                                    <li class="list-group-item"><a href="{{$pipelineID}}/tfunctions/{{.ID}}?pipelinename={{$pipelinename}}">{{.Name}}</a></li>
+                                    {{end}}
+                                </ul>
+                            </div>
+
+                            <div class="tab-pane fade" id="nav-extractsources" role="tabpanel">
+                                <a class="btn btn-primary" href="{{$pipelineID}}/extractsources/show-create?pipelineid={{$pipelineID}}&pipelinename={{$pipelinename}}" role="button" data-toggle="tooltip" title="add extract source">
+                                    <img src="/static/plus-circle.svg" width="30" height="30" class="d-inline-block align-top" alt="add extract source">
+                                </a>
+                                <ul class="list-group">
+                                    {{range .ExtractSources}}
+                                    <li class="list-group-item"><a href="{{$pipelineID}}/extractsources/{{.ID}}?pipelinename={{$pipelinename}}"/>{{.Name}}</a></li>
+                                    {{end}}
+                                </ul>
+                            </div>
+
+                            <div class="tab-pane fade" id="nav-certs" role="tabpanel">
+                                <button class="btn btn-primary" type="submit" onclick="window.open('/pipelines/{{$pipelineID}}/downloadcreds')"><i class="fa fa-download"></i>Download Credentials</button>
+                            </div>
+
+                            <div class="tab-pane fade" id="nav-extract" role="tabpanel">
+                                <!--div class="container"-->
+                                <form action="/pipelines/{{$pipelineID}}/downloadextract" method="post">
+                                    <div class="form-group row">
+                                        <label for="field1" class="col-sm-2 col-form-label">Field 1</label>
+                                        <div class="col-sm-2">
+                                            <input type="text" class="form-control" id="field1" name="field1" value="somevalue" data-toggle="tooltip" title="field 1">
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="pipelineid" name="pipelineid" value="{{$pipelineID}}">
+
+
+                                    <button type="submit" class="btn btn-primary">Extract Sample Data</button>
+                                </form>
+
+                                <!--/div-->
+                            </div>
+
+                            <div class="tab-pane fade" id="nav-users" role="tabpanel">
+                                <a class="btn btn-primary" href="{{$pipelineID}}/users/show?pipelineID={{$pipelineID}}&pipelinename={{$pipelinename}}" role="button" data-toggle="tooltip" title="add users" data-toggle="tooltip" title="add users users">
+                                    <img src="/static/plus-circle.svg" width="30" height="30" class="d-inline-block align-top" alt="add users">
+                                </a>
+                                <ul class="list-group">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Email</th>
+                                                <th>First Name</th>
+                                                <th>Last Name</th>
+                                                <th>Pipeline Access</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {{range .Users}}
+                                            <tr>
+                                                <td><a href="{{$pipelineID}}/users/{{.ID}}?pipelinename={{$pipelinename}}">{{.Email}}</a></td>
+                                                <td>{{.FirstName}}</td>
+                                                <td>{{.LastName}}</td>
+                                                <td>{{.Access}}</td>
+                                            </tr>
+                                            {{end}}
+                                        </tbody>
+                                    </table>
+                                </ul>
+                            </div>
+
+                            <div class="tab-pane fade" id="nav-database" role="tabpanel">
+                                <ul class="list-group">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Database Console</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><a href="{{ .DBConsoleURL }}">{{ .DBConsoleURL }}</a></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </ul>
+                            </div>
+
+                            <div class="tab-pane fade" id="nav-stats" role="tabpanel">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Metric</th>
+                                            <th>Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {{range .Metrics}}
+                                        <tr>
+                                            <td>{{.Name}}</td>
+                                            <td>{{.Value}}</td>
+                                        </tr>
+                                        {{end}}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="tab-pane fade" id="nav-jobs" role="tabpanel">
+                                <form action="/pipelines/{{$pipelineID}}/deletejobs" method="post">
+                                    <input type="hidden" id="pipelineid" name="pipelineid" value="{{$pipelineID}}">
+                                    <input type="hidden" id="pipelinename" name="pipelinename" value="{{$pipelinename}}">
+                                    <ul class="list-group">
+                                        <table class="table table-sm table-bordered table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Job Name</th>
+                                                    <th scope="col">Job Log</th>
+                                                    <th scope="col">Data Source</th>
+                                                    <th scope="col">File Name</th>
+                                                    <th scope="col">Table Name</th>
+                                                    <th scope="col">Records Loaded</th>
+                                                    <th scope="col">Status</th>
+                                                    <th scope="col">Start Date</th>
+                                                    <th scope="col">Completed Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {{range .Jobs}}
+                                                <tr>
+                                                    <td>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" name="job-{{.JobName}}" id="job-{{.JobName}}">
+                                                            <label class="form-check-label" for="{{.JobName}}">
+                                                                {{.JobName}}
+                                                            </label>
+                                                        </div>
+                                                    </td>
+                                                    <td><a href="/pipelines/{{$pipelineID}}/status//{{.JobName}}/log">Log</a></td>
+                                                    <td>{{.DataSource}}</td>
+                                                    <td>{{.FileName}}</td>
+                                                    <td>{{.TableName}}</td>
+                                                    <td>{{.RecordsLoaded}}</td>
+                                                    <td>{{.Status}}</td>
+                                                    <td>{{.StartDate}}</td>
+                                                    <td>{{.CompletedDate}}</td>
+                                                </tr>
+                                                {{end}}
+                                            </tbody>
+                                        </table>
+                                    </ul>
+                                    <button type="submit" class="btn btn-danger">Delete Jobs</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        <script>
+            $(document).ready(() => {
+  let url = location.href.replace(/\/$/, "");
+
+  if (location.hash) {
+    const hash = url.split("#");
+    $('#nav-tab a[href="#'+hash[1]+'"]').tab("show");
+    url = location.href.replace(/\/#/, "#");
+    history.replaceState(null, null, url);
+    setTimeout(() => {
+      $(window).scrollTop(0);
+    }, 400);
+  }
+
+  $('a[data-toggle="tab"]').on("click", function() {
+    let newUrl;
+    const hash = $(this).attr("href");
+    if(hash == "#home") {
+      newUrl = url.split("#")[0];
+    } else {
+      newUrl = url.split("#")[0] + hash;
+    }
+    newUrl += "/";
+    history.replaceState(null, null, newUrl);
+  });
+});
+        </script>
+
+    </body>
+</html>
+{{ end }}

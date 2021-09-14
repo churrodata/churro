@@ -1,0 +1,105 @@
+{{ define "layout" }}
+<html>
+    <head>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    </head>
+    <body>
+        {{$pipelinename := .Name}}
+        {{$pipelineID := .ID}}
+        {{ template "navbar" .UserEmail }}
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Pipeline {{$pipelinename}}</li>
+            </ol>
+        </nav>
+
+        {{ if ne .ErrorText "" }}
+        <div class="alert alert-danger" role="alert">
+            {{ .ErrorText }}
+        </div>
+        {{ end }}
+
+        <ul class="nav nav-tabs mb-3" id="mytab" role="tablist">
+
+            <li class="nav-item">
+                <a class="nav-link active" id="pills-jobs-tab" data-toggle="pill" href="#pills-jobs" role="tab" aria-controls="pills-jobs" aria-selected="true">Jobs</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pills-stats-tab" data-toggle="pill" href="#pills-stats" role="tab" aria-controls="pills-stats" aria-selected="false">Stats</a>
+            </li>
+        </ul>
+        <div class="tab-content" id="Content">
+            <div class="tab-pane fade show" id="pills-stats" role="tabpanel" aria-labelledby="pills-stats-tab">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{range .Metrics}}
+                        <tr>
+                            <td>{{.Name}}</td>
+                            <td>{{.Value}}</td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tab-pane fade show active" id="pills-jobs" role="tabpanel" aria-labelledby="pills-jobs-tab">
+                <form action="/pipelines/{{$pipelineID}}/deletejobs" method="post">
+                <ul class="list-group">
+                    <table class="table table-sm table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Job Name</th>
+                                <th scope="col">Job Log</th>
+                                <th scope="col">Data Source</th>
+                                <th scope="col">File Name</th>
+                                <th scope="col">Table Name</th>
+                                <th scope="col">Records Loaded</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Start Date</th>
+                                <th scope="col">Completed Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{range .Jobs}}
+                            <tr>
+                                 <td>
+                                     <div class="form-check">
+                                         <input class="form-check-input" type="checkbox" value="" id="job-{{.JobName}}" name="job-{{.JobName}}">
+                                         <label class="form-check-label" for="{{.JobName}}">
+                                             {{.JobName}}
+  </label>
+</div>
+                                 </td>
+                                 <td><a href="/pipelines/{{$pipelineID}}/status//{{.JobName}}/log">Log</a></td>
+                                <td>{{.DataSource}}</td>
+                                <td>{{.FileName}}</td>
+                                <td>{{.TableName}}</td>
+                                <td>{{.RecordsLoaded}}</td>
+                                <td>{{.Status}}</td>
+                                <td>{{.StartDate}}</td>
+                                <td>{{.CompletedDate}}</td>
+                            </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+                </ul>
+                <button type="submit" class="btn btn-danger">Delete Jobs</button>
+                </form>
+            </div>
+        </div>
+
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    </body>
+</html>
+{{ end }}

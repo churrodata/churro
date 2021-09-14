@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: memsql-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: memsql-operator
+  template:
+    metadata:
+      labels:
+        name: memsql-operator
+    spec:
+      serviceAccountName: memsql-operator
+      containers:
+        - name: memsql-operator
+          image: memsql/operator:1.2.5-83e8133a
+          imagePullPolicy: Always
+          args: [
+            # Cause the operator to merge rather than replace annotations on services
+            "--merge-service-annotations",
+            # Allow the process inside the container to have read/write access to the `/var/lib/memsql` volume.
+            "--fs-group-id", "5555"
+          ]
+          env:
+            - name: WATCH_NAMESPACE
+              value: ""
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "memsql-operator"

@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# namespace to use for the UI is where we also run the UI/admin database
+export NS=churro
+
+rm -rf certs my-safe-directory
+mkdir certs
+mkdir my-safe-directory
+
+cockroach cert create-ca --certs-dir=certs --ca-key=my-safe-directory/ca.key
+cockroach cert create-client root --certs-dir=certs --ca-key=my-safe-directory/ca.key
+
+kubectl -n $NS delete secret/cockroachdb.client.root  \
+secret/cockroachdb.client.root \
+sa/cockroachdb \
+pdb/cockroachdb-budget \
+roles/cockroachdb rolebindings/cockroachdb \
+svc/cockroachdb svc/cockroachdb-public \
+statefulset/cockroachdb \
+pod/cockroachdb-0 pod/cockroachdb-1 pod/cockroachdb-2 \
+secret/cockroachdb.node
+
+kubectl -n $NS create secret generic cockroachdb.client.root --from-file=certs
+cockroach cert create-node --certs-dir=certs --ca-key=my-safe-directory/ca.key localhost 127.0.0.1 cockroachdb-public cockroachdb-public.$NS cockroachdb-public.$NS.svc.cluster.local *.cockroachdb *.cockroachdb.$NS *.cockroachdb.$NS.svc.cluster.local
+kubectl -n $NS create secret generic cockroachdb.node --from-file=certs
+kubectl -n $NS create -f cockroach-statefulset.yaml
+
+echo "sleeping before running cockroach init command..."
+
+sleep 120
+
+kubectl -n $NS exec -it cockroachdb-0 -- /cockroach/cockroach init --certs-dir=/cockroach/cockroach-certs

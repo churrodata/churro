@@ -1,0 +1,56 @@
+
+
+# This is a functional test for testing the various database functions
+for cockroachdb and mysql.  You have to have a running cockroachdb
+and mysql instances in order to run this test against them.
+
+
+## We will install the mysql database as follows:
+
+Install the presslabs mysql operator onto your cluster into the churro ns
+
+* helm repo add presslabs https://presslabs.github.io/charts
+* helm install mysql-operator presslabs/mysql-operator -n churro
+
+Install the mysql secret/database into the churro ns
+
+* kubectl -n churro create -f deploy/ui/mysql/churro-ui-mysql-secret.yaml
+* kubectl -n churro create -f deploy/ui/mysql/churro-ui-mysql.yaml
+
+Access the database
+
+* kubectl -n churro port-forward service/churro-ui-mysql-mysql mysql
+* mysql -h127.0.0.1 -P3306 -uroot -p
+
+password is 'not-so-secure'
+
+
+## for cockroach we will use the cockroachdb instance that is typically
+running in the churro namespace which acts as the database for the
+churro web app:
+
+
+to install the cockroach CLI do this:
+
+curl https://binaries.cockroachdb.com/cockroach-v21.1.8.linux-amd64.tgz | tar -xz && sudo cp -i cockroach-v21.1.8.linux-amd64/cockroach /usr/local/bin/
+
+
+We need to extract the cockroachdb certs/keys from the kube secret, we
+have a script that performs the extract:
+
+cd cmd/testdatabases
+source extract
+
+Now we can test our connection as follows:
+
+kubectl -n churro port-forward service/cockroachdb-public 26257
+
+cockroach sql --certs-dir=. --host=localhost
+
+## lastly we are now ready to run the functional test:
+
+go run testdatabases.go -dbtype=cockroachdb
+
+or for testing mysql:
+
+go run testdatabases.go -dbtype=mysql

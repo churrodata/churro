@@ -1,0 +1,63 @@
+{{ define "layout" }}
+<html>
+    <head>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    </head>
+    <body>
+	{{ template "navbar" }}
+	<nav aria-label="breadcrumb">
+	    <ol class="breadcrumb">
+		<li class="breadcrumb-item"><a href="/">Home</a></li>
+		<li class="breadcrumb-item"><a href="/pipelines/{{.PipelineID}}">Pipeline {{.PipelineName}}</a></li>
+	    </ol>
+	</nav>
+
+	<h3>Pipeline Users</h3>
+
+	<form class="form-inline" action="/pipelines/{{.PipelineID}}/users/add" method="post">
+	    <table class="table table-striped">
+		<thead>
+		    <tr>
+			<th scope="col">Selected</th>
+			<th scope="col">First Name</th>
+			<th scope="col">Last Name</th>
+			<th scope="col">Email</th>
+			<th scope="col">Pipeline Access</th>
+		    </tr>
+		</thead>
+		<tbody>
+
+		    {{ range .Users }}
+		    <tr>
+			<th scope="row"> <input class="form-check-input" type="checkbox" id="remember-{{.ID}}" name="remember-{{.ID}}"></th>
+			<td>{{.FirstName}}</td>
+			<td>{{.LastName}}</td>
+			<td>{{.Email}}</td>
+			<td>
+			    <select class="form-control" id="access-{{.ID}}" name="access-{{.ID}}">
+				<option>Read</option>
+				<option>Write</option>
+				<option>Admin</option>
+			    </select>
+			</td>
+		    </tr>
+		    {{ end }}
+		</tbody>
+
+
+		<input type="hidden" id="pipelineid" name="pipelineid" value="{{.PipelineID}}">
+		<input type="hidden" id="pipelinename" name="pipelinename" value="{{.PipelineName}}">
+		<button type="submit" class="btn btn-primary">Save</button>
+	</form>
+	{{ if ne .ErrorText "" }}
+	<div class="alert alert-danger" role="alert">
+	    {{ .ErrorText }}
+	</div>
+	{{ end }}
+
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    </body>
+</html>
+{{ end }}

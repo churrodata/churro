@@ -1,0 +1,7 @@
+FROM alpine:latest
+
+# Copy our static executable
+COPY build/churro-loader /usr/local/bin/churro-loader
+
+# Run the churro-loader binary.
+ENTRYPOINT ["/usr/local/bin/churro-loader"]

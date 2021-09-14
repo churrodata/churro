@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package extension;
+
+option go_package = "rpc/extension";
+
+service Extension {
+  rpc Ping(PingRequest) returns (PingResponse);
+  rpc Push(PushRequest) returns (PushResponse);
+}
+
+message PingRequest {
+}
+
+message PingResponse {
+}
+
+message PushRequest {
+  int64 Key = 1;
+  bytes Metadata = 2;
+  string DataFormat = 3;
+}
+message PushResponse {
+}

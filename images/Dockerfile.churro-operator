@@ -1,0 +1,7 @@
+FROM fedora:latest
+
+# Copy our static executable
+COPY build/churro-operator /usr/local/bin
+
+# Run the churro-operator binary.
+ENTRYPOINT ["/usr/local/bin/churro-operator"]

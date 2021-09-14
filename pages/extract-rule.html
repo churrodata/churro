@@ -1,0 +1,86 @@
+{{ define "layout" }}
+<html>
+	<head>
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	</head>
+	<body>
+		{{ template "navbar" .UserEmail }}
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="/">Home</a></li>
+				<li class="breadcrumb-item"><a href="/pipelines/{{.PipelineID}}">Pipeline {{.PipelineName}}</a></li>
+				<li class="breadcrumb-item"><a href="/pipelines/{{.PipelineID}}/extractsources/{{.ExtractSourceID}}?pipelinename={{.PipelineName}}">Extract Source ({{.ExtractSourceName}})</a></li>
+				<li class="breadcrumb-item active" aria-current="page">Extract Rule</li>
+			</ol>
+		</nav>
+
+		<h3>Extract Rule</h3>
+		<br>
+		<form action="/pipelines/{{.PipelineID}}/extractsources/{{.ExtractSourceID}}/updaterule/{{.ExtractRuleID}}" method="post" >
+			<div class="form-group row">
+				<label for="columnname" class="col-sm-2 col-form-label">Column Name</label>
+				<div class="col-sm-5">
+					<input type="text" class="form-control" id="columnname" name="columnname" value="{{.ColumnName}}">
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="columntype" class="col-sm-2 col-form-label">Column Type</label>
+				<div class="col-sm-5">
+					<select class="form-control" id="columntype" name="columntype" data-toggle="tooltip" title="column type">
+<option {{ if eq .ColumnType "TEXT"}} selected {{ end }} >TEXT</option>
+<option {{ if eq .ColumnType "VARCHAR(32)"}} selected {{ end }} >VARCHAR(32)</option>
+<option {{ if eq .ColumnType "INT"}} selected {{ end }} >INT</option>
+<option {{ if eq .ColumnType "DECIMAL"}} selected {{ end }} >DECIMAL</option>
+					</select>
+
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="columnpath" class="col-sm-2 col-form-label">Column Path</label>
+				<div class="col-sm-5">
+					<input type="text" class="form-control" id="columnpath" name="columnpath" value="{{.ColumnPath}}">
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="matchvalues" class="col-sm-2 col-form-label">Match Values</label>
+				<div class="col-sm-5">
+					<input type="text" class="form-control" id="matchvalues" name="matchvalues" value="{{.MatchValues}}">
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="transformfunctionname" class="col-sm-2 col-form-label">Function Name</label>
+				<div class="col-sm-4">
+					<select class="form-control" id="transformfunctionname" name="transformfunctionname" data-toggle="tooltip" title="transform function">
+						{{ range .Functions }}
+						<option {{.Selected}}>{{.FunctionName}}</option>
+						{{ end }}
+					</select>
+				</div>
+			</div>
+
+            {{ if .Initialized }}
+            {{ else }}
+			<button type="submit" class="btn btn-primary">Save</button>
+            <a class="btn btn-danger" href="/pipelines/{{.PipelineID}}/extractsources/{{.ExtractSourceID}}/deleterule/{{.ExtractRuleID}}">Delete</a>
+            {{ end }}
+
+			<input type="hidden" id="pipelineid" name="pipelineid" value="{{.PipelineID}}">
+			<input type="hidden" id="initialized" name="initialized" value="{{.Initialized}}">
+			<input type="hidden" id="pipelinename" name="pipelinename" value="{{.PipelineName}}">
+			<input type="hidden" id="extractsourceid" name="extractsourceid" value="{{.ExtractSourceID}}">
+			<input type="hidden" id="ruleid" name="ruleid" value="{{.ExtractRuleID}}">
+
+		</form>
+
+		{{ if ne .ErrorText "" }}
+		<div class="alert alert-danger" role="alert">
+			{{ .ErrorText }}
+		</div>
+		{{ end }}
+
+		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	</body>
+</html>
+{{ end }}

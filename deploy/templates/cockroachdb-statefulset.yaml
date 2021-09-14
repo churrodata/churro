@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cockroachdb
+spec:
+  serviceName: "cockroachdb"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: cockroachdb
+  template:
+    metadata:
+      labels:
+        app: cockroachdb
+    spec:
+      serviceAccountName: cockroachdb
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - cockroachdb
+              topologyKey: kubernetes.io/hostname
+      containers:
+      - name: cockroachdb
+        image: cockroachdb/cockroach:v20.2.14
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 26257
+          name: grpc
+        - containerPort: 8080
+          name: http
+        livenessProbe:
+          httpGet:
+            path: "/health"
+            port: http
+            scheme: HTTPS
+          initialDelaySeconds: 30
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: "/health?ready=1"
+            port: http
+            scheme: HTTPS
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 2
+        volumeMounts:
+        - name: datadir
+          mountPath: /cockroach/cockroach-data
+        - name: certs
+          mountPath: /cockroach/cockroach-certs
+        env:
+        - name: COCKROACH_CHANNEL
+          value: kubernetes-secure
+        command:
+          - "/bin/bash"
+          - "-ecx"
+          # The use of qualified `hostname -f` is crucial:
+          # Other nodes aren't able to look up the unqualified hostname.
+          - "exec /cockroach/cockroach start --logtostderr --certs-dir /cockroach/cockroach-certs --advertise-host $(hostname -f) --http-addr 0.0.0.0 --join cockroachdb-0.cockroachdb,cockroachdb-1.cockroachdb,cockroachdb-2.cockroachdb --cache 25% --max-sql-memory 25%"
+      # No pre-stop hook is required, a SIGTERM plus some time is all that's
+      # needed for graceful shutdown of a node.
+      terminationGracePeriodSeconds: 60
+      volumes:
+      - name: datadir
+        persistentVolumeClaim:
+          claimName: datadir
+      - name: certs
+        secret:
+          secretName: cockroachdb.node
+          defaultMode: 256
+  podManagementPolicy: Parallel
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+  - metadata:
+      name: datadir
+    spec:
+      accessModes:
+        - "ReadWriteOnce"
+      resources:
+        requests:
+          storage: 1Gi

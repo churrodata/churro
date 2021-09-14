@@ -1,0 +1,131 @@
+{{ define "layout" }}
+<html>
+    <head>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    </head>
+        <style type='text/css'>
+            .wfiedls{
+                dipslay: none;
+            }
+            .wfiedls2{
+                dipslay: none;
+            }
+        </style>
+        <script type='text/javascript'>
+            function check(elem) {
+                var scheme1 = document.getElementById("extractsourcescheme");
+                var wname = document.getElementById("extractsourcename");
+                wname.value = "my-" + scheme1.value + "-files";
+                var wpath = document.getElementById("extractsourcepath");
+                wpath.value = "/churro/" + scheme1.value + "files";
+                var wregex = document.getElementById("extractsourceregex");
+                var wskipdiv = document.getElementById("skipheadersdiv");
+                var wskip = document.getElementById("skipheaders");
+                var wskiplabel = document.getElementById("skipheaderslabel");
+                var wcrondiv = document.getElementById("crondiv");
+                var wcron = document.getElementById("cronexpression");
+                var wcronlabel = document.getElementById("cronexpressionlabel");
+                wregex.value = "[a-z,0-9].(" + scheme1.value + ")$";
+                if (scheme1.value == "api") {
+                  wpath.value = "https://someurl";
+                  wregex.value = "";
+                  //wcrondiv.style.display = "inline";
+                  $(".wfiedls").show();
+                } else {
+                  //wcrondiv.style.display = "none";
+                  $(".wfiedls").hide();
+                }
+
+                if (scheme1.value == "csv") {
+                  //wskipdiv.style.display = "inline";
+                  $(".wfiedls2").show();
+                } else if (scheme1.value == "xlsx") {
+                  //wskipdiv.style.display = "inline";
+                  $(".wfiedls2").show();
+                } else {
+                  //wskipdiv.style.display = "none";
+                  $(".wfiedls2").hide();
+                }
+                var wtname = document.getElementById("extractsourcetablename");
+                wtname.value = "my" + scheme1.value + "table";
+            }
+        </script>
+    <body onload="check(this);">
+        {{ template "navbar" .UserEmail}}
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/pipelines/{{.PipelineID}}">Pipeline {{.PipelineName}}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">New Extract Source</li>
+            </ol>
+        </nav>
+
+        <h3>Extract Source</h3>
+        <form action="/pipelines/{{.PipelineID}}/extractsource" method="post">
+            <div class="form-group row">
+                <label for="extractsourcescheme" class="col-sm-2 col-form-label">Scheme</label>
+                <div class="col-sm-4">
+                    <select onChange="check(this);" class="form-control" id="extractsourcescheme" name="extractsourcescheme" data-toggle="tooltip" title="type of data to process">
+                        <option selected>csv</option>
+                        <option>xlsx</option>
+                        <option>xml</option>
+                        <option>json</option>
+                        <option>jsonpath</option>
+                        <option>api</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="extractsourcename" class="col-sm-2 col-form-label">Name</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" id="extractsourcename" name="extractsourcename" value="my-csv-files" data-toggle="tooltip" title="short name for this extract source , your choice">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="extractsourcepath" class="col-sm-2 col-form-label">Path</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" id="extractsourcepath" name="extractsourcepath" value="/churro/csvfiles" data-toggle="tooltip" title="the file system path to be watched">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="extractsourceregex" class="col-sm-2 col-form-label">Regex</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" id="extractsourceregex" name="extractsourceregex" value="[a-z,0-9].(csv)$" data-toggle="tooltip" title="a regex pattern for this extract source file type">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="extractsourcetablename" class="col-sm-2 col-form-label">Table Name</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" id="extractsourcetablename" name="extractsourcetablename" value="mycsvtable" data-toggle="tooltip" title="churro database table to be created for this extract source">
+                </div>
+            </div>
+            <div class="form-group row wfiedls" id="crondiv" >
+                <label id="cronexpressionlabel" for="cronexpression" class="col-sm-2 col-form-label">Poll cron Expression</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" id="cronexpression" name="cronexpression" value="30s" data-toggle="tooltip" title="polling cronexpression">
+                </div>
+            </div>
+            <div class="form-group row wfiedls2" id="skipheadersdiv">
+                <label id="skipheaderslabel" for="skipheaders" class="col-sm-2 col-form-label">Skip Headers</label>
+                <div class="col-sm-4">
+                    <input type="number" min="0" max="10" class="form-control" id="skipheaders" name="skipheaders" value="0" data-toggle="tooltip" title="skip headers">
+                </div>
+            </div>
+            <input type="hidden" id="pipelineid" name="pipelineid" value="{{.PipelineID}}">
+            <input type="hidden" id="pipelinename" name="pipelinename" value="{{.PipelineName}}">
+
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+        {{ if ne .ErrorText "" }}
+        <div class="alert alert-danger" role="alert">
+            {{ .ErrorText }}
+        </div>
+        {{ end }}
+
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    </body>
+</html>
+{{ end }}

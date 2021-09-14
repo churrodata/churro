@@ -1,0 +1,84 @@
+{{ define "layout" }}
+<html>
+    <head>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    </head>
+    <body>
+
+	{{ template "navbar" .UserEmail }}
+
+	<h3>Create User</h3>
+	<form action="/useradmin" method="post">
+	    <div class="form-group row">
+		<label for="name" class="col-sm-2 col-form-label">First Name</label>
+		<div class="col-sm-10">
+		    <input type="text" class="form-control" name="firstname" id="firstname" aria-describedby="userFirstNameHelp" placeholder="first name" data-toggle="tooltip" title="first name of user">
+		    <small id="userFirstNameHelp" class="form-text text-muted">Create user help text here.</small>
+		</div>
+	    </div>
+	    <div class="form-group row">
+		<label for="lastname" class="col-sm-2 col-form-label">Last Name</label>
+		<div class="col-sm-10">
+		    <input type="text" class="form-control" name="lastname" id="lastname" aria-describedby="userLastNameHelp" placeholder="last name" data-toggle="tooltip" title="last name of user">
+		    <small id="userLastNameHelp" class="form-text text-muted">Create user help text here.</small>
+		</div>
+	    </div>
+	    <div class="form-group row">
+		<label for="email" class="col-sm-2 col-form-label">Email Address</label>
+		<div class="col-sm-10">
+		    <input type="text" class="form-control" name="email" id="email" aria-describedby="userEmailHelp" placeholder="email address" data-toggle="tooltip" title="email address of user">
+		    <small id="userEmailHelp" class="form-text text-muted">user email help text here.</small>
+		</div>
+	    </div>
+	    <div class="form-group row">
+		<label for="password" class="col-sm-2 col-form-label">Password</label>
+		<div class="col-sm-10">
+		    <input type="password" class="form-control" name="password" id="password" aria-describedby="userPasswordHelp" placeholder="password" data-toggle="tooltip" title="password address of user">
+		    <small id="userPasswordHelp" class="form-text text-muted">user password help text here.</small>
+		</div>
+	    </div>
+	    <div class="form-group row">
+		<label for="access" class="col-sm-2 col-form-label">Access</label>
+		<div class="col-sm-10">
+		    <select class="form-control" id="access" name="access">
+			<option>Read</option>
+			<option>Write</option>
+			<option>Admin</option>
+		    </select>
+
+		</div>
+	    </div>
+	    <button type="submit" class="btn btn-primary">Submit</button>
+	</form>
+	{{ if ne .ErrorText "" }}
+	<div class="alert alert-danger" role="alert">
+	    {{ .ErrorText }}
+	</div>
+	{{ end }}
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	<script>
+	    var slider1 = document.getElementById("loaderqueuesize");
+	    var output1 = document.getElementById("range1");
+	    output1.innerHTML = slider1.value;
+
+	    slider1.oninput = function() {
+			    output1.innerHTML = this.value;
+			}
+	</script>
+
+	<script>
+	    var slider2 = document.getElementById("loaderpctheadroom");
+	    var output2 = document.getElementById("range2");
+	    output2.innerHTML = slider2.value;
+
+	    slider2.oninput = function() {
+			    output2.innerHTML = this.value;
+			}
+	</script>
+
+    </body>
+</html>
+
+{{ end }}

@@ -1,0 +1,134 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: churro-operator
+rules:
+- apiGroups:
+  - storage.k8s.io
+  resources:
+  - storageclasses
+  verbs:
+  - list
+  - get
+- apiGroups:
+  - churro.project.io
+  resources:
+  - pipelines
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - create
+  - get
+  - list
+- apiGroups:
+  - churro.project.io
+  resources:
+  - churrouis
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - pods/exec
+  - pods
+  - pods/log
+  verbs:
+  - list
+  - watch
+  - create
+  - delete
+  - get
+- apiGroups:
+  - 'rbac.authorization.k8s.io'
+  resources:
+  - clusterroles
+  - clusterrolebindings
+  - roles
+  - rolebindings
+  - services
+  verbs:
+  - list
+  - watch
+  - create
+  - delete
+  - get
+- apiGroups:
+  - ''
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - create
+  - get
+  - delete
+  - list
+  - watch
+- apiGroups:
+  - 'policy'
+  resources:
+  - poddisruptionbudgets
+  verbs:
+  - list
+  - watch
+  - create
+- apiGroups:
+  - ''
+  resources:
+  - secrets
+  - serviceaccounts
+  - services
+  - namespaces
+  verbs:
+  - delete
+  - get
+  - list
+  - watch
+  - create
+- apiGroups:
+  - 'apps'
+  resources:
+  - statefulsets
+  - deployments
+  verbs:
+  - list
+  - watch
+  - create
+- apiGroups:
+  - mysql.presslabs.org
+  resources:
+  - mysqlclusters
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - memsql.com
+  resources:
+  - memsqlclusters
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch

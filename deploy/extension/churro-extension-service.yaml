@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: churro-extension
+spec:
+  ports:
+  - port: 10000
+    protocol: TCP
+    targetPort: 10000
+  selector:
+    service: churro-extension
+  sessionAffinity: None
+  type: ClusterIP

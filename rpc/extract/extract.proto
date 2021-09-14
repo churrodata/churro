@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package extract;
+
+option go_package = "rpc/extract";
+
+service Extract {
+  rpc Ping(PingRequest) returns (PingResponse);
+}
+
+message PingRequest {
+  int32 backpressure = 1;
+}
+
+message PingResponse {
+  int32 backpressure = 1;
+}
+

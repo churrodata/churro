@@ -1,0 +1,6 @@
+FROM drakkan/sftpgo:latest
+
+USER 0
+
+CMD ["sftpgo", "serve"]
+

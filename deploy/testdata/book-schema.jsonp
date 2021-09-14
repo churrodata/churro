@@ -1,0 +1,138 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "store": {
+      "type": "object",
+      "properties": {
+        "book": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+                "category": {
+                  "type": "string"
+                },
+                "author": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "category",
+                "author",
+                "title",
+                "price"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "category": {
+                  "type": "string"
+                },
+                "author": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "category",
+                "author",
+                "title",
+                "price"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "category": {
+                  "type": "string"
+                },
+                "author": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "isbn": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "category",
+                "author",
+                "title",
+                "isbn",
+                "price"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "category": {
+                  "type": "string"
+                },
+                "author": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "isbn": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "category",
+                "author",
+                "title",
+                "isbn",
+                "price"
+              ]
+            }
+          ]
+        },
+        "bicycle": {
+          "type": "object",
+          "properties": {
+            "color": {
+              "type": "string"
+            },
+            "price": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "color",
+            "price"
+          ]
+        }
+      },
+      "required": [
+        "book",
+        "bicycle"
+      ]
+    }
+  },
+  "required": [
+    "store"
+  ]
+}

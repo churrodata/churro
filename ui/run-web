@@ -1,0 +1,11 @@
+#!/bin/bash
+export PORT=8080
+echo "inside run-web..."
+if [ -z "$PORT" ]
+then
+      echo "\$PORT is empty, typically this is 8080"
+      exit 1
+fi
+CERTS_DIR=../certs/somepipeline
+#/bin/churro-webex -servicecert /bin/servicecerts -dbcert /bin/dbcerts -debug true
+go run ui/main.go -servicecert $CERTS_DIR/servicecerts -dbcert $CERTS_DIR/dbcerts -debug true
