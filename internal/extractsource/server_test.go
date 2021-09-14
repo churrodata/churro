@@ -9,7 +9,6 @@ import (
 	"github.com/churrodata/churro/api/v1alpha1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 )
 
 func TestCreateExtractPod(t *testing.T) {
@@ -56,7 +55,7 @@ func TestGetExtractCount(t *testing.T) {
 	ns := "default"
 	os.Setenv("CHURRO_NAMESPACE", ns)
 
-	s := Server{}
+	//s := Server{}
 
 	os.Setenv("FAKECLIENT", "true")
 	otherClient, err := GetKubeClient("")
@@ -64,7 +63,7 @@ func TestGetExtractCount(t *testing.T) {
 		t.Fatalf("operator.CreateExtractPod Error: %v", err)
 	}
 
-	count, err := getExtractCount(otherClient.(kubernetes.Clientset), ns)
+	count, err := getExtractCount(otherClient, ns)
 	if err != nil {
 		t.Fatalf("operator.CreateExtractPod Error: %v", err)
 	}

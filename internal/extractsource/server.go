@@ -506,7 +506,8 @@ func (s *Server) startQueueConsumer() {
 	}
 }
 
-func getExtractCount(clientset *kubernetes.Clientset, namespace string) (count int, err error) {
+//func getExtractCount(clientset *kubernetes.Clientset, namespace string) (count int, err error) {
+func getExtractCount(clientset kubernetes.Interface, namespace string) (count int, err error) {
 	labelSelector := fmt.Sprintf("service=churro-extract")
 	listOptions := metav1.ListOptions{LabelSelector: labelSelector}
 	pods, err := clientset.CoreV1().Pods(namespace).List(context.TODO(), listOptions)
