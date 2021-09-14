@@ -6,8 +6,8 @@ Licensor:             churrodata.com, llc
 Licensed Work:        churro, v1.0
                       The Licensed Work is (c) 2021 churrodata.com, llc.
 Additional Use Grant: You may make use of the Licensed Work, provided that
-                      you may not use the Licensed Work for a churro ETL
-                      Service.
+                      you may not use the Licensed Work for a commercial 
+                      churro ETL Service.
 
                       A “churro ETL Service” is a commercial offering that
                       allows third parties (other than your employees and
@@ -15,18 +15,20 @@ Additional Use Grant: You may make use of the Licensed Work, provided that
                       Licensed Work by creating churro ETL pipelines which are
                       controlled by such third parties.
 
-Change Date:          2021-10-01
+
+Change Date:          2021-09-01
 
 Change License:       Apache License, Version 2.0
 
 For information about alternative licensing arrangements for the Software,
-please visit: https://cockroachlabs.com/
+please visit: https://churrodata.com/
 
 Notice
 
 The Business Source License (this document, or the “License”) is not an Open
-Source license. However, the Licensed Work will eventually be made available
-under an Open Source License, as stated in this License.
+Source license. However, the Licensed Work is made available
+under an Open Source License, as stated in this License if you do not 
+create a churro commercial service. 
 
 License text copyright (c) 2017 MariaDB Corporation Ab, All Rights Reserved.
 “Business Source License” is a trademark of MariaDB Corporation Ab.
@@ -42,11 +44,8 @@ works, redistribute, and make non-production use of the Licensed Work. The
 Licensor may make an Additional Use Grant, above, permitting limited
 production use.
 
-Effective on the Change Date, or the fourth anniversary of the first publicly
-available distribution of a specific version of the Licensed Work under this
-License, whichever comes first, the Licensor hereby grants you rights under
-the terms of the Change License, and the rights granted in the paragraph
-above terminate.
+If you do not create a churro commercial service, the Licensor hereby grants 
+you rights under the terms of the Change License, and the rights granted in the paragraph above terminate.
 
 If your use of the Licensed Work does not comply with the requirements
 currently in effect as described in this License, you must purchase a
