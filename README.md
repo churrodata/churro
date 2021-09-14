@@ -21,7 +21,7 @@ Detailed documentation is found on the [churrodata.com website](https://www.chur
 Inquires about churro Cloud can be directed to info@churrodata.com.  In the near future, users will be able to provision a churro instance on the cloud of their choice, with billing and management handled by churrodata.com
 
 ## Starting with churro
-People generally start with churro by creating a kubernetes cluster, then running the churro Makefile and following the churro documentation to deploy churro to your running cluster.  Installation documentation is found on the [churro github pages website](https://churrodata.github.io/churro/churro-Installation-Guide).
+People generally start with churro by creating a kubernetes cluster, then running the churro Makefile and following the churro documentation to deploy churro to your running cluster.  Installation documentation is found on the [churro github pages website](https://churrodata.github.io/churro/install-guide.md).
 
 ## Contributing
 Since churro is open source, you can view the source code and make contributions such as pull requests on our github.com site.
@@ -35,4 +35,4 @@ Some key aspects of the churro design:
 * churro currently supports persisting to cockroachdb, singlestore, and mysql databases
 * churro implements a kubernetes operator to handle gitops style provisioning of churro pipeline resources
 
-For more details on the churro design, checkout out the documentation at the [churro github pages website](https://churrodata.github.io/churro/churro-User-Guide).
+For more details on the churro design, checkout out the documentation at the [churro github pages website](https://churrodata.github.io/churro/design-guide.md).
