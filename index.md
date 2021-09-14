@@ -1,37 +1,21 @@
-## Welcome to GitHub Pages
+# churro Documentation
 
-You can use the [editor on GitHub](https://github.com/churrodata/churro/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+Documentation on the churro ETL application can be found here.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## User Guide
 
-### Markdown
+User information and how to use the churro web application can be found in the [User Guide](https://churrodata.github.io/churro/user-guide).
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## Installation Guide
 
-```markdown
-Syntax highlighted code block
+For admins wanting to install churro, instructions are found in the [Installation Guide](https://churrodata.github.io/churro/installation-guide).
 
-# Header 1
-## Header 2
-### Header 3
 
-- Bulleted
-- List
+## Design Guide
 
-1. Numbered
-2. List
+For developers that want to know how to extend or contribute to churro, see the [Design Guide](https://churrodata.github.io/churro/design-guide).
 
-**Bold** and _Italic_ and `Code` text
 
-[Link](url) and ![Image](src)
-```
+## Support or Contact
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/churrodata/churro/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+churro professional support is offered from [churrodata.com](https://churrodata.com/)
