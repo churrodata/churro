@@ -9,6 +9,8 @@ import (
 
 func TestRunRules(t *testing.T) {
 
+	jkajdskfjadfa
+
 	cols := []string{"one", "two"}
 	record := []interface{}{"a", "b"}
 	rules := make(map[string]domain.ExtractRule)
