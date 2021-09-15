@@ -61,6 +61,8 @@ type ExtractSource struct {
 	Tablename      string `json:"tablename"`
 	Cronexpression string `json:"cronexpression"`
 	Skipheaders    int    `json:"skipheaders"`
+	Multiline      bool   `json:"multiline"`
+	Sheetname      string `json:"sheetname"`
 	// Initialized is calculated, not persisted
 	Initialized  bool                   `json:"initialized"`
 	Running      bool                   `json:"running"`

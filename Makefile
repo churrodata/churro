@@ -2,7 +2,7 @@ SAMPLE_WATCH_DIRS=/churro
 GRPC_CERTS_DIR=certs/grpc
 DB_CERTS_DIR=certs/db
 BUILDDIR=./build
-PIPELINE=pipeline3
+PIPELINE=pipeline1
 CHURRO_NS=churro
 
 ## pick the database you want to use for the web console

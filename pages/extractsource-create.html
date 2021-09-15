@@ -7,7 +7,16 @@
             .wfiedls{
                 dipslay: none;
             }
+            .wfiedls0{
+                dipslay: none;
+            }
             .wfiedls2{
+                dipslay: none;
+            }
+            .wfiedls3{
+                dipslay: none;
+            }
+            .wfiedls4{
                 dipslay: none;
             }
         </style>
@@ -26,25 +35,51 @@
                 var wcron = document.getElementById("cronexpression");
                 var wcronlabel = document.getElementById("cronexpressionlabel");
                 wregex.value = "[a-z,0-9].(" + scheme1.value + ")$";
-                if (scheme1.value == "api") {
-                  wpath.value = "https://someurl";
-                  wregex.value = "";
-                  //wcrondiv.style.display = "inline";
-                  $(".wfiedls").show();
-                } else {
-                  //wcrondiv.style.display = "none";
-                  $(".wfiedls").hide();
-                }
-
-                if (scheme1.value == "csv") {
-                  //wskipdiv.style.display = "inline";
-                  $(".wfiedls2").show();
-                } else if (scheme1.value == "xlsx") {
-                  //wskipdiv.style.display = "inline";
-                  $(".wfiedls2").show();
-                } else {
-                  //wskipdiv.style.display = "none";
-                  $(".wfiedls2").hide();
+                switch(scheme1.value) {
+                  case "api":
+                    wpath.value = "https://someurl";
+                    wregex.value = "";
+                    $(".wfiedls").show();
+                    $(".wfiedls0").hide();
+                    $(".wfiedls2").hide();
+                    $(".wfiedls3").hide();
+                    $(".wfiedls4").hide();
+                    break;
+                  case "csv":
+                    $(".wfiedls").hide();
+                    $(".wfiedls0").show();
+                    $(".wfiedls2").show();
+                    $(".wfiedls3").hide();
+                    $(".wfiedls4").hide();
+                    break;
+                  case "xlsx":
+                    $(".wfiedls").hide();
+                    $(".wfiedls0").show();
+                    $(".wfiedls2").show();
+                    $(".wfiedls3").hide();
+                    $(".wfiedls4").show();
+                    break;
+                  case "json":
+                    $(".wfiedls").hide();
+                    $(".wfiedls0").show();
+                    $(".wfiedls2").hide();
+                    $(".wfiedls3").show();
+                    $(".wfiedls4").hide();
+                    break;
+                  case "jsonpath":
+                    $(".wfiedls").hide();
+                    $(".wfiedls0").show();
+                    $(".wfiedls2").hide();
+                    $(".wfiedls3").show();
+                    $(".wfiedls4").hide();
+                    break;
+                  case "xml":
+                    $(".wfiedls").hide();
+                    $(".wfiedls0").show();
+                    $(".wfiedls2").hide();
+                    $(".wfiedls3").show();
+                    $(".wfiedls4").hide();
+                    break;
                 }
                 var wtname = document.getElementById("extractsourcetablename");
                 wtname.value = "my" + scheme1.value + "table";
@@ -87,7 +122,7 @@
                     <input type="text" class="form-control" id="extractsourcepath" name="extractsourcepath" value="/churro/csvfiles" data-toggle="tooltip" title="the file system path to be watched">
                 </div>
             </div>
-            <div class="form-group row">
+            <div class="form-group row wfiedls0">
                 <label for="extractsourceregex" class="col-sm-2 col-form-label">Regex</label>
                 <div class="col-sm-4">
                     <input type="text" class="form-control" id="extractsourceregex" name="extractsourceregex" value="[a-z,0-9].(csv)$" data-toggle="tooltip" title="a regex pattern for this extract source file type">
@@ -102,13 +137,29 @@
             <div class="form-group row wfiedls" id="crondiv" >
                 <label id="cronexpressionlabel" for="cronexpression" class="col-sm-2 col-form-label">Poll cron Expression</label>
                 <div class="col-sm-4">
-                    <input type="text" class="form-control" id="cronexpression" name="cronexpression" value="30s" data-toggle="tooltip" title="polling cronexpression">
+                    <input type="text" class="form-control" id="cronexpression" name="cronexpression" value="@every 1h" data-toggle="tooltip" title="polling cronexpression">
                 </div>
             </div>
             <div class="form-group row wfiedls2" id="skipheadersdiv">
                 <label id="skipheaderslabel" for="skipheaders" class="col-sm-2 col-form-label">Skip Headers</label>
                 <div class="col-sm-4">
                     <input type="number" min="0" max="10" class="form-control" id="skipheaders" name="skipheaders" value="0" data-toggle="tooltip" title="skip headers">
+                </div>
+            </div>
+            <div class="form-group row wfiedls3" id="multilinediv">
+                <label id="multilinelabel" for="multiline" class="col-sm-2 col-form-label">Multi-line</label>
+                <div class="col-sm-1">
+                    <input type="checkbox" class="form-control" id="multiline" name="multiline" value="true" data-toggle="tooltip" title="multiline content">
+                    <select class="form-control" id="multiline" name="multiline" data-toggle="tooltip" title="multi-line content">
+                        <option selected>false</option>
+                        <option>true</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row wfiedls4" id="sheetnamediv">
+                <label id="sheetnamelabel" for="sheetname" class="col-sm-2 col-form-label">Excel Sheet Name</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" id="sheetname" name="sheetname" value="Sheet1" data-toggle="tooltip" title="spreadsheet sheet name">
                 </div>
             </div>
             <input type="hidden" id="pipelineid" name="pipelineid" value="{{.PipelineID}}">
