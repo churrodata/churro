@@ -1,16 +1,19 @@
-source code in this repository is licensed under the Business Source License 1.1 (BSL), the Apache License 2.0 (APL), and other related licenses which pertain to to libraries and products included in the repository.
+source code in this repository is licensed under the Business Source License 1.1 (BSL), 
+and the Apache License 2.0 (APL), and other related licenses which pertain to to libraries 
+and products included in the repository.
 
-The APL applies to churro itself, you can do what you want with the 
+The APL (Apache License) applies to churro itself, you can do what you want with the 
 churro source code essentially as with any other APL licensed source
 code.
 
-The BSL exists to not allow others outside of churrodata.com to run
+The BSL exists to restrict others outside of churrodata.com to run
 a churro-as-a-service commercial offering using the churro source code as
 the basis of that offering.  Companies wanting to base commercial products
 off of churro would need to obtain permission from churrodata.com.
 
-Since churro integrates with cockroachdb, singlestore, and mysql, their
-relevant licenses are included in this repo under the licenses folder.
+Since churro deploys databases, depending on what database you deploy (cockroachdb, singlestore, and mysql)
+the relevant licenses for those databases will apply, their
+associated licenses are included in this repo under the licenses folder.
 
 churro is built with various open source libraries, of which their respective
 licenses are included in the licenses folder.
