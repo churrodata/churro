@@ -3,8 +3,11 @@
 Churro is a data ingest application framework, allowing end users to provide
 data in the form of files or APIs that get processed by churro pipelines.
 The types of input data sources include JSON APIs, CSV, XML, XLS, and JSON files for example.  The churro framework allows for other file types to be supported.
+
 Multiple pipelines can be created which act as a data ingest processor.  The pipelines watch for incoming files and performs pipeline processing on them.  Typically, pipeline processing completes with ingested data being added to a pipeline's consolidated database.
-Pipeline processing includes data transformations.  More significant data processing logic can be added using churro framework features.
+Pipeline processing includes data transformations.  
+
+More significant data processing logic can be added using churro framework features.
 These concepts and more are detailed within the following links:
 
 * [Pipelines](#pipelines)
