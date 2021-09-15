@@ -12,7 +12,7 @@ churro is a cloud-native Extract-Transform-Load (ETL) application designed to bu
 
 
 ## What is churro?
-churro is an application that processes input files and streams by extracting content and loading that content into a database of your choice, all running on Kubernetes.  Today, churro supports processing of JSON, XML, XLSX, CSV files along with JSON API streams.
+churro is an application that processes input files and streams by extracting content and loading that content into a database of your choice, all running on Kubernetes.  Today, churro supports processing of JSON, XML, XLSX, CSV files along with JSON API streams.  End users create churro pipelines to process data, those pipelines can be created using the churro web app or via a churro pipeline custom resource (yaml) directly.
 
 ## Docs
 Detailed documentation is found at the [churro github pages site](https://churrodata.github.io/churro/), additional content can be found at the [churrodata.com website](https://www.churrodata.com) web site.
