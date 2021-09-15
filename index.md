@@ -11,6 +11,8 @@ of churro work, the blogs are located in the [churrodata.com website](https://ch
 
 User information and how to use the churro web application can be found in the [User Guide](user-guide.md).
 
+Extract sources are defined in the [Extract Sources Guide](extract-sources.md).
+
 ## Installation Guide
 
 For admins wanting to install churro, instructions are found in the [Installation Guide](installation-guide.md).
