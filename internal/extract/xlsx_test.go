@@ -37,6 +37,7 @@ func TestExtractXLSX(t *testing.T) {
 		ExtractRules: extractRules,
 		Tablename:    "myxlsxtable",
 		Skipheaders:  1,
+		Sheetname:    "Sheet1",
 	}
 
 	s := Server{

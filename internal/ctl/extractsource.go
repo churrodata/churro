@@ -14,6 +14,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/rs/xid"
 	"github.com/rs/zerolog/log"
@@ -66,6 +67,10 @@ func (s *Server) CreateExtractSource(ctx context.Context, request *pb.CreateExtr
 		return nil, status.Errorf(codes.InvalidArgument,
 			"extract source skipheaders is required to be >= 0")
 	}
+	if wdir.Sheetname == "" && (wdir.Scheme == extractapi.XLSXScheme) {
+		return nil, status.Errorf(codes.InvalidArgument,
+			"extract source sheetname is required for xlsx scheme")
+	}
 	if wdir.Tablename == "" {
 		return nil, status.Errorf(codes.InvalidArgument,
 			"extract source tablename is required")
@@ -111,6 +116,8 @@ func (s *Server) CreateExtractSource(ctx context.Context, request *pb.CreateExtr
 		Tablename:      wdir.Tablename,
 		Cronexpression: wdir.Cronexpression,
 		Skipheaders:    wdir.Skipheaders,
+		Sheetname:      wdir.Sheetname,
+		Multiline:      strconv.FormatBool(wdir.Multiline),
 	}
 
 	pipelineToUpdate.Spec.Extractsources = append(pipelineToUpdate.Spec.Extractsources, esrc)

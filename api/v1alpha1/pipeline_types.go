@@ -78,8 +78,8 @@ type ExtractSourceDefinition struct {
 	Tablename      string `json:"tablename"`
 	Cronexpression string `json:"cronexpression"`
 	Skipheaders    int    `json:"skipheaders"`
-	//Rule           []ExtractRule `json:"rule"`
-	//Ext            []Extension   `json:"ext"`
+	Multiline      string `json:"multiline"`
+	Sheetname      string `json:"sheetname"`
 }
 
 // PipelineSpec defines the desired state of Pipeline

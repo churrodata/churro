@@ -219,6 +219,10 @@ spec:
                       type: string
                     skipheaders:
                       type: integer
+                    sheetname:
+                      type: string
+                    multiline:
+                      type: string
                   required:
                   - id
                   - name

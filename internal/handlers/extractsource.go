@@ -214,6 +214,17 @@ func (u *HandlerWrapper) CreateExtractSource(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	rawValue := r.Form["multiline"][0]
+	if rawValue == "" {
+		rawValue = "false"
+	}
+	mV, err := strconv.ParseBool(rawValue)
+	if err != nil {
+		a := u.Copy("multiline is blank or not a valid boolean")
+		a.ShowCreateExtractSource(w, r)
+		return
+	}
+
 	d := domain.ExtractSource{
 		ID:             xid.New().String(),
 		Name:           r.Form["extractsourcename"][0],
@@ -222,6 +233,8 @@ func (u *HandlerWrapper) CreateExtractSource(w http.ResponseWriter, r *http.Requ
 		Regex:          r.Form["extractsourceregex"][0],
 		Tablename:      r.Form["extractsourcetablename"][0],
 		Cronexpression: r.Form["cronexpression"][0],
+		Multiline:      mV,
+		Sheetname:      r.Form["sheetname"][0],
 		Skipheaders:    v,
 		LastUpdated:    time.Now(),
 		ExtractRules:   make(map[string]domain.ExtractRule),
@@ -255,6 +268,11 @@ func (u *HandlerWrapper) CreateExtractSource(w http.ResponseWriter, r *http.Requ
 	}
 	if d.Skipheaders < 0 && (d.Scheme == extractapi.CSVScheme || d.Scheme == extractapi.XLSXScheme) {
 		a := u.Copy("skipheaders is required to be >= 0")
+		a.ShowCreateExtractSource(w, r)
+		return
+	}
+	if d.Sheetname == "" && (d.Scheme == extractapi.XLSXScheme) {
+		a := u.Copy("sheetname is required to be non-blank")
 		a.ShowCreateExtractSource(w, r)
 		return
 	}

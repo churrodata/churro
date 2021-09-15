@@ -31,7 +31,7 @@ import (
 // ExtractXLS Excel file contents and exit
 func (s *Server) ExtractXLS(ctx context.Context) (err error) {
 
-	log.Info().Msg("ExtractXLS starting...")
+	log.Info().Msg("ExtractXLS starting...sheetname is " + s.ExtractSource.Sheetname)
 
 	xlsxFile, err := excelize.OpenFile(s.FileName)
 	if err != nil {
@@ -39,8 +39,8 @@ func (s *Server) ExtractXLS(ctx context.Context) (err error) {
 		return err
 	}
 
-	// TODO make sheetName configurable
-	sheetName := "Sheet1"
+	//sheetName := "Sheet1"
+	//sheetName := s.ExtractSource.Sheetname
 
 	dp := domain.DataProvenance{
 		Name: s.FileName,
@@ -54,9 +54,9 @@ func (s *Server) ExtractXLS(ctx context.Context) (err error) {
 	log.Info().Msg("dp info name " + dp.Name + " path " + dp.Path)
 
 	var rows [][]string
-	rows, err = xlsxFile.GetRows(sheetName)
+	rows, err = xlsxFile.GetRows(s.ExtractSource.Sheetname)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("could not GetRows xlsx file sheet " + sheetName)
+		log.Error().Stack().Err(err).Msg("could not GetRows xlsx file sheet " + s.ExtractSource.Sheetname)
 		return err
 	}
 
