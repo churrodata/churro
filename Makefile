@@ -139,34 +139,34 @@ compile-ui:
 
 build-memsql-studio: 
 	docker build -f ./images/Dockerfile.memsql-studio -t docker.io/churrodata/memsql-studio .
-build-ui: compile-ui
+build-ui-image:
 	docker build -f ./images/Dockerfile.churro-ui -t docker.io/churrodata/churro-ui .
 
 compile-extract:
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=require_unimplemented_servers=false:. --go-grpc_opt=paths=source_relative rpc/extract/extract.proto
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=require_unimplemented_servers=false:. --go-grpc_opt=paths=source_relative rpc/extension/extension.proto
 	go build -o build/churro-extract cmd/churro-extract/churro-extract.go
-build-extract: compile-extract
+build-extract-image:
 	docker build -f ./images/Dockerfile.churro-extract -t docker.io/churrodata/churro-extract .
 
 compile-extractsource:
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=require_unimplemented_servers=false:. --go-grpc_opt=paths=source_relative rpc/extractsource/extractsource.proto
 	go build -o build/churro-extractsource cmd/churro-extractsource/churro-extractsource.go
-build-extractsource: compile-extractsource
+build-extractsource-image: 
 	docker build -f ./images/Dockerfile.churro-extractsource -t docker.io/churrodata/churro-extractsource .
 
 compile-ctl:
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=require_unimplemented_servers=false:. --go-grpc_opt=paths=source_relative rpc/ctl/ctl.proto
 	go build -o build/churro-ctl cmd/churro-ctl/churro-ctl.go
-build-ctl: compile-ctl
+build-ctl-image: 
 	docker build -f ./images/Dockerfile.churro-ctl -t docker.io/churrodata/churro-ctl .
-build-sftp: 
+build-sftp-image: 
 	docker build -f ./images/Dockerfile.churro-sftp -t docker.io/churrodata/churro-sftp .
 
 
 compile-operator:
 	go build -o build/churro-operator cmd/churro-operator/churro-operator.go
-build-operator: compile-operator
+build-operator-image: 
 	docker build -f ./images/Dockerfile.churro-operator -t docker.io/churrodata/churro-operator .
 
 port-forward:
@@ -186,7 +186,7 @@ port-forward-ui-db:
 
 compile: compile-operator compile-ctl compile-extractsource compile-extract
 
-all: build-sftp build-extract build-extractsource build-ctl build-operator build-ui
+all: build-sftp-image build-extract-image build-extractsource-image build-ctl-image build-operator-image build-ui-image
 
 pipeline-certs:
 	$(BUILDDIR)/gen-certs.sh certs $(PIPELINE)

@@ -1,7 +1,13 @@
+FROM golang:1.16 as builder
+ADD . /build
+ADD ./cmd/churro-extractsource/churro-extractsource.go /build
+WORKDIR /build
+RUN CGO_ENABLED=0 GOOS=linux go build -o churro-extractsource
+
 FROM fedora:latest
 
 # Copy our static executable
-COPY build/churro-extractsource /usr/local/bin/churro-extractsource
+COPY --from=builder /build/churro-extractsource /usr/local/bin/churro-extractsource
 
 # Run the churro-extractsource binary.
 ENTRYPOINT ["/usr/local/bin/churro-extractsource"]
