@@ -4,6 +4,8 @@ DB_CERTS_DIR=certs/db
 BUILDDIR=./build
 PIPELINE=pipeline1
 CHURRO_NS=churro
+TAG=0.0.1
+images=churro-ui churro-operator churro-sftp churro-ctl churro-extract churro-extractsource
 
 ## pick the database you want to use for the web console
 #DATABASE=singlestore
@@ -126,13 +128,17 @@ deploy-churro-operator:
 	kubectl -n $(CHURRO_NS) create -f deploy/operator/service-account.yaml
 	kubectl -n $(CHURRO_NS) create -f deploy/operator/churro-operator-deployment.yaml
 push:
-	docker push docker.io/churrodata/churro-extract:latest 
-	docker push docker.io/churrodata/churro-extractsource:latest 
-	docker push docker.io/churrodata/churro-ui:latest 
-	docker push docker.io/churrodata/churro-ctl:latest 
-	docker push docker.io/churrodata/churro-operator:latest 
-	docker push docker.io/churrodata/churro-sftp:latest 
+	for i in $(images); do \
+		echo $$i; \
+	    docker push docker.io/churrodata/$$i:latest; \
+	done
 	#docker push docker.io/churrodata/churro/memsql-studio:latest
+release: 
+	for i in $(images); do \
+		echo $$i; \
+		docker tag docker.io/churrodata/$$i:latest docker.io/churrodata/$$i:$(TAG); \
+	    docker push docker.io/churrodata/$$i:$(TAG); \
+	done
 
 compile-ui:
 	go build -o build/churro-ui ui/main.go
@@ -140,34 +146,36 @@ compile-ui:
 build-memsql-studio: 
 	docker build -f ./images/Dockerfile.memsql-studio -t docker.io/churrodata/memsql-studio .
 build-ui-image:
-	docker build -f ./images/Dockerfile.churro-ui -t docker.io/churrodata/churro-ui .
+	docker buildx build --load --platform linux/amd64 -f ./images/Dockerfile.churro-ui -t docker.io/churrodata/churro-ui .
 
 compile-extract:
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=require_unimplemented_servers=false:. --go-grpc_opt=paths=source_relative rpc/extract/extract.proto
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=require_unimplemented_servers=false:. --go-grpc_opt=paths=source_relative rpc/extension/extension.proto
 	go build -o build/churro-extract cmd/churro-extract/churro-extract.go
 build-extract-image:
-	docker build -f ./images/Dockerfile.churro-extract -t docker.io/churrodata/churro-extract .
+	docker buildx build --load --platform linux/amd64 -f ./images/Dockerfile.churro-extract -t docker.io/churrodata/churro-extract .
 
 compile-extractsource:
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=require_unimplemented_servers=false:. --go-grpc_opt=paths=source_relative rpc/extractsource/extractsource.proto
 	go build -o build/churro-extractsource cmd/churro-extractsource/churro-extractsource.go
+
 build-extractsource-image: 
-	docker build -f ./images/Dockerfile.churro-extractsource -t docker.io/churrodata/churro-extractsource .
+	docker buildx build --load --platform linux/amd64 -f ./images/Dockerfile.churro-extractsource -t docker.io/churrodata/churro-extractsource .
 
 compile-ctl:
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=require_unimplemented_servers=false:. --go-grpc_opt=paths=source_relative rpc/ctl/ctl.proto
 	go build -o build/churro-ctl cmd/churro-ctl/churro-ctl.go
-build-ctl-image: 
-	docker build -f ./images/Dockerfile.churro-ctl -t docker.io/churrodata/churro-ctl .
-build-sftp-image: 
-	docker build -f ./images/Dockerfile.churro-sftp -t docker.io/churrodata/churro-sftp .
 
+build-ctl-image: 
+	docker buildx build --load --platform linux/amd64 -f ./images/Dockerfile.churro-ctl -t docker.io/churrodata/churro-ctl .
+
+build-sftp-image: 
+	docker buildx build --load --platform linux/amd64 -f ./images/Dockerfile.churro-sftp -t docker.io/churrodata/churro-sftp .
 
 compile-operator:
 	go build -o build/churro-operator cmd/churro-operator/churro-operator.go
 build-operator-image: 
-	docker build -f ./images/Dockerfile.churro-operator -t docker.io/churrodata/churro-operator .
+	docker buildx build --load --platform linux/amd64 -f ./images/Dockerfile.churro-operator -t docker.io/churrodata/churro-operator .
 
 port-forward:
 	kubectl -n churro port-forward svc/churro-ui --address `hostname --ip-address` 8080:8080 
