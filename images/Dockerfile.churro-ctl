@@ -1,9 +1,15 @@
+FROM golang:1.16 as builder
+ADD . /build
+ADD ./cmd/churro-ctl/churro-ctl.go /build
+WORKDIR /build
+RUN CGO_ENABLED=0 GOOS=linux go build -o churro-ctl
+
 FROM fedora:latest
 
 # Copy our static executable
 RUN yum -y install sqlite
 
-COPY build/churro-ctl /usr/local/bin
+COPY --from=builder /build/churro-ctl /usr/local/bin
 
 # Run the churro-ctl binary.
 ENTRYPOINT ["/usr/local/bin/churro-ctl"]

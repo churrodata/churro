@@ -1,7 +1,14 @@
+FROM golang:1.16 as builder
+ADD . /build
+ADD ./ui/main.go /build
+WORKDIR /build
+RUN CGO_ENABLED=0 GOOS=linux go build -o churro-ui
+
+
 FROM fedora:latest
 
 # Copy our static executable
-COPY build/churro-ui /usr/local/bin
+COPY --from=builder /build/churro-ui /usr/local/bin
 #RUN yum -y install sqlite
 RUN mkdir /pages
 COPY certs/ui/ /

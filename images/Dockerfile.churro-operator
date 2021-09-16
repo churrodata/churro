@@ -1,7 +1,13 @@
+FROM golang:1.16 as builder
+ADD . /build
+ADD ./cmd/churro-operator/churro-operator.go /build
+WORKDIR /build
+RUN CGO_ENABLED=0 GOOS=linux go build -o churro-operator
+
 FROM fedora:latest
 
 # Copy our static executable
-COPY build/churro-operator /usr/local/bin
+COPY --from=builder /build/churro-operator /usr/local/bin
 
 # Run the churro-operator binary.
 ENTRYPOINT ["/usr/local/bin/churro-operator"]
