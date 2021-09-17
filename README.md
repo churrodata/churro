@@ -5,6 +5,7 @@ churro is a cloud-native Extract-Transform-Load (ETL) application designed to bu
 * [What is churro?](#what-is-churro)
 * [Design](#design)
 * [Docs](#docs)
+* [Images](#images)
 * [churro Cloud](#churro-cloud)
 * [Starting with churro](#starting-with-churro)
 * [Contributing](#contributing)
@@ -27,6 +28,9 @@ For more details on the churro design, checkout out the documentation at the [ch
 
 ## Docs
 Detailed documentation is found at the [churro github pages](https://churrodata.github.io/churro/), additional content such as blogs can be found at the [churrodata.com](https://www.churrodata.com) web site.
+
+## Images
+Today, churro container images are found on DockerHub [here](https://hub.docker.com/u/churrodata).  These images are muulti-arch manifest images that include builds for both amd64 and arm64 architectures.
 
 ## churro Cloud
 Inquires about churro Cloud can be directed to info@churrodata.com.  In the near future, users will be able to provision a churro instance on the cloud of their choice, with billing and management handled by churrodata.com
