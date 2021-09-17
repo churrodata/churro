@@ -1,4 +1,4 @@
-# churro User Guide
+# [churro](https://churrodata.github.io/churro) User Guide
 
 Churro is a data ingest application framework, allowing end users to provide
 data in the form of files or APIs that get processed by churro pipelines.
@@ -39,11 +39,17 @@ End users can access the Pipeline's target database, in this case a cockroachdb 
 
 End users can manage churro Pipelines using the churro-ui web application.
 
+Here is a screenshot of the pipeline create page:
+![alt text](/churro/assets/create-pipeline.png)
+
 ## Transform Functions
 Transform functions are churro transformation logic that are defined within a given Pipeline. This logic is used to transform input data files data into another format if necessary.
 Today, churro supports golang based Transform Functions.
 End users of churro can define Transform Functions for a Pipeline using the churro-ui web application.
 Transform functions are just logic essentially and are not invoked until you define a Transform Rule which uses this logic.
+
+Here is a screenshot of an example transform function:
+![alt text](/churro/assets/transform-function.png)
 
 ## Transform Rules
 Transform rules define a transformation rule for a given data input type. That rules specifies a Transform Function that will be executed.
@@ -85,6 +91,9 @@ Users can either own a Read, Write, or Admin privilege.  Privileges in churro wo
 |  Write | Update pipelines   | Update a pipeline   |
 |  Admin | create pipelines   | Administer a pipeline    |
 
+Here is a sample screenshot of a pipeline's users:
+![alt text](/churro/assets/pipeline-users.png)
+
 ## Extract Sources
 Extract Sources are defined for a given Pipeline and allow you to watch file system directories for certain file types to be created or read from JSON APIs. As those data sources are read by churro, it results in data being ingested into the pipeline database created by churro.
 
@@ -95,6 +104,7 @@ You specify a directory path into which you would copy files for churro to proce
 As files are created in the watched directory, churro-watch will create worker processes to process the input files, transforming their data, and loading it into the pipeline's target database (e.g. cockroachdb instance).
 
 In the case of a Data Source being a JSON API, you define the API endpoints in the Data Source and churro will then create a churro-extract Pod that will read from that API endpoint until you stop the Pod.
+
 
 ## Extract Data Samples
 End users of churro using the web interface can extract samples of a pipeline's data.

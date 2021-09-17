@@ -1,4 +1,4 @@
-# churro Installation Guide
+# [churro](https://churrodata.github.io/churro) Installation Guide
 
 - [Environment Requirements](Development Host Setup)
 - [Download churro](churro-download)
