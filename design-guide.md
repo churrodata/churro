@@ -1,9 +1,11 @@
-# churro Design Guide
+# [churro](https://churrodata.github.com/churro) Design Guide
 
 churro is made of various software components which are deployed to a k8s cluster.
 
 ## churro-ui
 The web user interface is called churro-ui, it is deployed as a k8s Deployment and is fronted by a k8s Service which enables end user access via a browser.
+
+![alt text](./images/pipeline-users.png)
 
 ## churro-operator
 There is a k8s operator which runs as a k8s Pod with the k8s namespace called churro.  This application component acts to deploy and manage various churro pipelines and insures they are kept running.  You run a single churro-operator on your system.
