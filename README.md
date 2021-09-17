@@ -23,10 +23,10 @@ Some key aspects of the churro design:
 * churro currently supports persisting ingested data into cockroachdb, singlestore, and mysql databases
 * churro implements a kubernetes operator to handle git-ops style provisioning of churro pipeline resources including the pipeline database
 
-For more details on the churro design, checkout out the documentation at the [churro github pages website](https://churrodata.github.io/churro/design-guide.html).
+For more details on the churro design, checkout out the documentation at the [churro github pages](https://churrodata.github.io/churro/design-guide.html).
 
 ## Docs
-Detailed documentation is found at the [churro github pages](https://churrodata.github.io/churro/), additional content can be found at the [churrodata.com](https://www.churrodata.com) web site.
+Detailed documentation is found at the [churro github pages](https://churrodata.github.io/churro/), additional content such as blogs can be found at the [churrodata.com](https://www.churrodata.com) web site.
 
 ## churro Cloud
 Inquires about churro Cloud can be directed to info@churrodata.com.  In the near future, users will be able to provision a churro instance on the cloud of their choice, with billing and management handled by churrodata.com
