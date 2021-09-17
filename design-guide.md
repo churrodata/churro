@@ -5,7 +5,7 @@ churro is made of various software components which are deployed to a k8s cluste
 ## churro-ui
 The web user interface is called churro-ui, it is deployed as a k8s Deployment and is fronted by a k8s Service which enables end user access via a browser.
 
-![alt text](/churro/assets/pipeline-users.png)
+![alt text]({{ site.url }}/assets/pipeline-users.png)
 
 ## churro-operator
 There is a kubernetes [operator](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/) which runs as a Pod within a namespace called churro.  This application component acts to deploy and manage various churro pipelines and insures they are kept running.  You run a single churro-operator on your cluster.
