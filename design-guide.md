@@ -30,13 +30,13 @@ Once the file is processed, the churro-extract Pod stops.  These churro-extract 
 
 In the case of a JSON API data source, churro-extract Pods do not stop unless you delete them, so they will run and capture data on some configured polling interval (e.g. 5 minutes). 
 
-### cockroachdb
+### [cockroachdb](https://www.cockroachlabs.com)
 churro provisions a unique database for a pipeline.  This database can be a dedicated cockroachdb database which consists of a StatefulSet which causes n-number of cockroachdb nodes to run within a pipeline's namespace.  Currently the default set of nodes is defined to 3 which is the minimum number of nodes for running cockroachdb.
 
 There is a kubernetes Service named cockroachdb-public that fronts the deployed database allowing end users a means to access the pipeline database.
 
-### mysql
-churro also supports the creation of churro pipeline backend databases using mysql.
+### [mysql](https://dev.mysql.com/)
+churro also supports the creation of churro pipeline backend databases using mysql.  churro leverages the MySQL kubernetes operator from [bitpoke](https://www.bitpoke.io/docs/mysql-operator/getting-started/).
 
-### singlestore (memsql)
-churro also supports the creation of churro pipeline backend databases using singlestore's memsql database.
+### [singlestore](https://singlestore.com)
+churro also supports the creation of churro pipeline backend databases using singlestore's memsql database.  churro leverages the SingleStore kubernetes operator.
