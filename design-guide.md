@@ -1,4 +1,4 @@
-# [churro](https://churrodata.github.com/churro) Design Guide
+# [churro](https://churrodata.github.io/churro) Design Guide
 
 churro is made of various software components which are deployed to a k8s cluster.
 
