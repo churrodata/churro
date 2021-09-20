@@ -59,6 +59,14 @@ func (s *Server) CreateExtractSource(ctx context.Context, request *pb.CreateExtr
 		return nil, status.Errorf(codes.InvalidArgument,
 			"extract source scheme is required")
 	}
+	if wdir.Transport == "" && wdir.Scheme == extractapi.HTTPPostScheme {
+		return nil, status.Errorf(codes.InvalidArgument,
+			"extract source transport is required")
+	}
+	if wdir.Encoding == "" && wdir.Scheme == extractapi.HTTPPostScheme {
+		return nil, status.Errorf(codes.InvalidArgument,
+			"extract source encoding is required")
+	}
 	if wdir.Regex == "" && wdir.Scheme != extractapi.APIScheme {
 		return nil, status.Errorf(codes.InvalidArgument,
 			"extract source regex is required")
@@ -118,6 +126,9 @@ func (s *Server) CreateExtractSource(ctx context.Context, request *pb.CreateExtr
 		Skipheaders:    wdir.Skipheaders,
 		Sheetname:      wdir.Sheetname,
 		Multiline:      strconv.FormatBool(wdir.Multiline),
+		Encoding:       wdir.Encoding,
+		Transport:      wdir.Transport,
+		Port:           wdir.Port,
 	}
 
 	pipelineToUpdate.Spec.Extractsources = append(pipelineToUpdate.Spec.Extractsources, esrc)
@@ -228,6 +239,9 @@ func (s *Server) GetExtractSource(ctx context.Context, request *pb.GetExtractSou
 			wdir.Scheme = c.Scheme
 			wdir.Regex = c.Regex
 			wdir.Tablename = c.Tablename
+			wdir.Port = c.Port
+			wdir.Encoding = c.Encoding
+			wdir.Transport = c.Transport
 			wdir.Cronexpression = pipelineToUpdate.Spec.Extractsources[i].Cronexpression
 			// get the extract rules for this extract source
 			wdir.ExtractRules = make(map[string]domain.ExtractRule)
@@ -315,6 +329,9 @@ func (s *Server) GetExtractSources(ctx context.Context, request *pb.GetExtractSo
 			Regex:          current.Regex,
 			Tablename:      current.Tablename,
 			Cronexpression: current.Cronexpression,
+			Port:           current.Port,
+			Encoding:       current.Encoding,
+			Transport:      current.Transport,
 		}
 		values = append(values, v)
 	}
@@ -397,6 +414,9 @@ func (s *Server) UpdateExtractSource(ctx context.Context, request *pb.UpdateExtr
 			pipelineToUpdate.Spec.Extractsources[i].Scheme = f.Scheme
 			pipelineToUpdate.Spec.Extractsources[i].Regex = f.Regex
 			pipelineToUpdate.Spec.Extractsources[i].Tablename = f.Tablename
+			pipelineToUpdate.Spec.Extractsources[i].Port = f.Port
+			pipelineToUpdate.Spec.Extractsources[i].Encoding = f.Encoding
+			pipelineToUpdate.Spec.Extractsources[i].Transport = f.Transport
 			pipelineToUpdate.Spec.Extractsources[i].Cronexpression = f.Cronexpression
 			_, err = pipelineClient.Update(pipelineToUpdate)
 			if err != nil {

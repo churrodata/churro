@@ -80,6 +80,9 @@ type ExtractSourceDefinition struct {
 	Skipheaders    int    `json:"skipheaders"`
 	Multiline      string `json:"multiline"`
 	Sheetname      string `json:"sheetname"`
+	Port           int    `json:"port"`
+	Encoding       string `json:"encoding"`
+	Transport      string `json:"transport"`
 }
 
 // PipelineSpec defines the desired state of Pipeline

@@ -140,11 +140,13 @@ release:
 	    docker push docker.io/churrodata/$$i:$(TAG); \
 	done
 
-compile-ui:
-	go build -o build/churro-ui ui/main.go
 
 build-memsql-studio: 
 	docker build -f ./images/Dockerfile.memsql-studio -t docker.io/churrodata/memsql-studio .
+compile-ui:
+	go build -o build/churro-ui ui/main.go
+build-ui-image-local:
+	docker build -f ./images/Dockerfile.churro-ui -t docker.io/churrodata/churro-ui .
 build-ui-image:
 	docker buildx build --load --platform linux/amd64 -f ./images/Dockerfile.churro-ui -t docker.io/churrodata/churro-ui .
 
@@ -166,6 +168,8 @@ compile-ctl:
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=require_unimplemented_servers=false:. --go-grpc_opt=paths=source_relative rpc/ctl/ctl.proto
 	go build -o build/churro-ctl cmd/churro-ctl/churro-ctl.go
 
+build-ctl-image-local: 
+	docker build -f ./images/Dockerfile.churro-ctl -t docker.io/churrodata/churro-ctl .
 build-ctl-image: 
 	docker buildx build --load --platform linux/amd64 -f ./images/Dockerfile.churro-ctl -t docker.io/churrodata/churro-ctl .
 

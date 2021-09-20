@@ -17,6 +17,7 @@ const (
 	JSONPathScheme = "jsonpath"
 	FinnHubScheme  = "finnhub-stocks"
 	APIScheme      = "api"
+	HTTPPostScheme = "httppost"
 )
 
 type LoaderMessage struct {

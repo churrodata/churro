@@ -3,7 +3,117 @@
     <head>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     </head>
-    <body>
+           <style type='text/css'>
+            .wfiedls{
+                dipslay: none;
+            }
+            .wfiedls0{
+                dipslay: none;
+            }
+            .wfiedls2{
+                dipslay: none;
+            }
+            .wfiedls3{
+                dipslay: none;
+            }
+            .wfiedls4{
+                dipslay: none;
+            }
+            .wfiedls5{
+                dipslay: none;
+            }
+        </style>
+
+               <script type='text/javascript'>
+            function updateposturl(elem) {
+                var wpath = document.getElementById("path");
+                var wport = document.getElementById("port");
+                var wtransport = document.getElementById("transport");
+                wpath.value = wtransport.value + "://{{.PipelineName}}.cluster.svc.local:" + wport.value + "/extractsourcepush";
+            }
+            function check(elem) {
+                var scheme1 = document.getElementById("scheme");
+                var wname = document.getElementById("name");
+                wname.value = "my-" + scheme1.value + "-files";
+                var wpath = document.getElementById("path");
+                wpath.value = "/churro/" + scheme1.value + "files";
+                var wregex = document.getElementById("regex");
+                //var wskipdiv = document.getElementById("skipheadersdiv");
+                //var wskip = document.getElementById("skipheaders");
+                //var wskiplabel = document.getElementById("skipheaderslabel");
+                //var wcrondiv = document.getElementById("crondiv");
+                //var wcron = document.getElementById("cronexpression");
+                var wtransport = document.getElementById("transport");
+                var wport = document.getElementById("port");
+                //var wcronlabel = document.getElementById("cronexpressionlabel");
+                wregex.value = "[a-z,0-9].(" + scheme1.value + ")$";
+                switch(scheme1.value) {
+                   case "api":
+                    wpath.value = "https://someurl";
+                    wregex.value = "";
+                    $(".wfiedls").show();
+                    $(".wfiedls0").hide();
+                    $(".wfiedls2").hide();
+                    $(".wfiedls3").hide();
+                    $(".wfiedls4").hide();
+                    $(".wfiedls5").hide();
+                    break;
+                  case "csv":
+                    $(".wfiedls").hide();
+                    $(".wfiedls0").show();
+                    $(".wfiedls2").show();
+                    $(".wfiedls3").hide();
+                    $(".wfiedls4").hide();
+                    $(".wfiedls5").hide();
+                    break;
+                  case "xlsx":
+                    $(".wfiedls").hide();
+                    $(".wfiedls0").show();
+                    $(".wfiedls2").show();
+                    $(".wfiedls3").hide();
+                    $(".wfiedls4").show();
+                    $(".wfiedls5").hide();
+                    break;
+                  case "json":
+                    $(".wfiedls").hide();
+                    $(".wfiedls0").show();
+                    $(".wfiedls2").hide();
+                    $(".wfiedls3").show();
+                    $(".wfiedls4").hide();
+                    $(".wfiedls5").hide();
+                    break;
+                  case "jsonpath":
+                    $(".wfiedls").hide();
+                    $(".wfiedls0").show();
+                    $(".wfiedls2").hide();
+                    $(".wfiedls3").show();
+                    $(".wfiedls4").hide();
+                    $(".wfiedls5").hide();
+                    break;
+                 case "xml":
+                    $(".wfiedls").hide();
+                    $(".wfiedls0").show();
+                    $(".wfiedls2").hide();
+                    $(".wfiedls3").show();
+                    $(".wfiedls4").hide();
+                    $(".wfiedls5").hide();
+                    break;
+                  case "httppost":
+                    wpath.value = wtransport.value + "://{{.PipelineName}}.cluster.svc.local:" + wport.value + "/extractsourcepush";
+                    $(".wfiedls").hide();
+                    $(".wfiedls0").hide();
+                    $(".wfiedls2").hide();
+                    $(".wfiedls3").hide();
+                    $(".wfiedls4").hide();
+                    $(".wfiedls5").show();
+                    break;
+                }
+                var wtname = document.getElementById("tablename");
+                wtname.value = "my" + scheme1.value + "table";
+            }
+        </script>
+
+    <body onload="check(this);">
         {{ template "navbar" .UserEmail}}
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -37,7 +147,8 @@
             <div class="form-group row">
                 <label for="scheme" class="col-sm-2 col-form-label">Scheme</label>
                 <div class="col-sm-4">
-                    <select class="form-control" id="scheme" name=scheme data-toggle="tooltip" title="type of data to process" value="{{.ExtractSource.Scheme}}">
+                    <select onChange="check(this);" class="form-control" id="scheme" name=scheme data-toggle="tooltip" title="type of data to process" value="{{.ExtractSource.Scheme}}">
+                        <option {{ if eq .ExtractSource.Scheme "httppost"}} selected {{ end }} >httppost</option>
                         <option {{ if eq .ExtractSource.Scheme "xlsx"}} selected {{ end }} >xlsx</option>
                         <option {{ if eq .ExtractSource.Scheme "csv"}} selected {{ end }} >csv</option>
                         <option {{ if eq .ExtractSource.Scheme "xml"}} selected {{ end }} >xml</option>
@@ -47,7 +158,7 @@
                     </select>
                 </div>
             </div>
-            <div class="form-group row">
+            <div class="form-group row wfiedls0">
                 <label for="regex" class="col-sm-2 col-form-label">Regex</label>
                 <div class="col-sm-4">
                     <input type="text" class="form-control" id="regex" name="regex" value="{{.ExtractSource.Regex}}">
@@ -59,12 +170,74 @@
                     <input type="text" class="form-control" id="tablename" name="tablename" value="{{.ExtractSource.Tablename}}">
                 </div>
             </div>
-            <div class="form-group row">
+            <div class="form-group row wfiedls">
                 <label for="cronexpression" class="col-sm-2 col-form-label">Poll cron Expression</label>
                 <div class="col-sm-4">
                     <input type="text" class="form-control" id="cronexpression" name="cronexpression" value="{{.ExtractSource.Cronexpression}}">
                 </div>
             </div>
+            <div class="form-group row wfiedls2" id="skipheadersdiv">
+                <label id="skipheaderslabel" for="skipheaders" class="col-sm-2 col-form-label">Skip Headers</label>
+                <div class="col-sm-4">
+                    <input type="number" min="0" max="10" class="form-control" id="skipheaders" name="skipheaders" value="{{.ExtractSource.Skipheaders}}" data-toggle="tooltip" title="skip headers">
+                </div>
+            </div>
+            <div class="form-group row wfiedls3" id="multilinediv">
+                <label id="multilinelabel" for="multiline" class="col-sm-2 col-form-label">Multi-line</label>
+                <div class="col-sm-1">
+                    <select class="form-control" id="multiline" name="multiline" data-toggle="tooltip" title="multi-line content">
+            {{ if .ExtractSource.Multiline }}
+                        <option>false</option>
+                        <option selected>true</option>
+            {{ else }}
+                        <option selected>false</option>
+                        <option>true</option>
+            {{ end }}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row wfiedls5" id="portdiv">
+                <label id="portlabel" for="port" class="col-sm-2 col-form-label">Port</label>
+                <div class="col-sm-4">
+                    <input onChange="check(this);" type="number" min="10000" max="11000" class="form-control" id="port" name="port" value="{{.ExtractSource.Port}}" data-toggle="tooltip" title="port">
+                </div>
+            </div>
+            <div class="form-group row wfiedls5" id="transportdiv">
+                <label id="transportlabel" for="transport" class="col-sm-2 col-form-label">Transport</label>
+                <div class="col-sm-4">
+                    <select onChange="check(this);" class="form-control" id="transport" name="transport" data-toggle="tooltip" title="either http or https">
+            {{ if eq .ExtractSource.Transport "http"}} 
+                        <option selected>http</option>
+                        <option>https</option>
+            {{ else }}
+                        <option>http</option>
+                        <option selected>https</option>
+            {{ end }}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row wfiedls5" id="encodingdiv">
+                <label id="encodinglabel" for="encoding" class="col-sm-2 col-form-label">Encoding</label>
+                <div class="col-sm-4">
+                  <select class="form-control" id="encoding" name="encoding" data-toggle="tooltip" title="encoding of POST body">
+            {{ if eq .ExtractSource.Encoding "urlencoded"}} 
+                        <option selected>urlencoded</option>
+                        <option>json</option>
+            {{ else }}
+                        <option>urlencoded</option>
+                        <option>json</option>
+            {{ end }}
+                  </select>
+                </div>
+            </div>
+
+            <div class="form-group row wfiedls4" id="sheetnamediv">
+                <label id="sheetnamelabel" for="sheetname" class="col-sm-2 col-form-label">Excel Sheet Name</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" id="sheetname" name="sheetname" value="{{.ExtractSource.Sheetname}}" data-toggle="tooltip" title="spreadsheet sheet name">
+                </div>
+            </div>
+
             {{ if .ExtractSource.Initialized }}
             {{ else }}
             <button type="submit" class="btn btn-primary" >Save</button>

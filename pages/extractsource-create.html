@@ -19,8 +19,17 @@
             .wfiedls4{
                 dipslay: none;
             }
+            .wfiedls5{
+                dipslay: none;
+            }
         </style>
         <script type='text/javascript'>
+            function updateposturl(elem) {
+                var wpath = document.getElementById("extractsourcepath");
+                var wport = document.getElementById("port");
+                var wtransport = document.getElementById("transport");
+                wpath.value = wtransport.value + "://{{.PipelineName}}.cluster.svc.local:" + wport.value + "/extractsourcepush";
+            }
             function check(elem) {
                 var scheme1 = document.getElementById("extractsourcescheme");
                 var wname = document.getElementById("extractsourcename");
@@ -28,12 +37,14 @@
                 var wpath = document.getElementById("extractsourcepath");
                 wpath.value = "/churro/" + scheme1.value + "files";
                 var wregex = document.getElementById("extractsourceregex");
-                var wskipdiv = document.getElementById("skipheadersdiv");
-                var wskip = document.getElementById("skipheaders");
-                var wskiplabel = document.getElementById("skipheaderslabel");
-                var wcrondiv = document.getElementById("crondiv");
-                var wcron = document.getElementById("cronexpression");
-                var wcronlabel = document.getElementById("cronexpressionlabel");
+                //var wskipdiv = document.getElementById("skipheadersdiv");
+                //var wskip = document.getElementById("skipheadersu");
+                //var wskiplabel = document.getElementById("skipheaderslabel");
+                //var wcrondiv = document.getElementById("crondiv");
+                //var wcron = document.getElementById("cronexpression");
+                var wtransport = document.getElementById("transport");
+                var wport = document.getElementById("port");
+                //var wcronlabel = document.getElementById("cronexpressionlabel");
                 wregex.value = "[a-z,0-9].(" + scheme1.value + ")$";
                 switch(scheme1.value) {
                   case "api":
@@ -44,6 +55,7 @@
                     $(".wfiedls2").hide();
                     $(".wfiedls3").hide();
                     $(".wfiedls4").hide();
+                    $(".wfiedls5").hide();
                     break;
                   case "csv":
                     $(".wfiedls").hide();
@@ -51,6 +63,7 @@
                     $(".wfiedls2").show();
                     $(".wfiedls3").hide();
                     $(".wfiedls4").hide();
+                    $(".wfiedls5").hide();
                     break;
                   case "xlsx":
                     $(".wfiedls").hide();
@@ -58,6 +71,7 @@
                     $(".wfiedls2").show();
                     $(".wfiedls3").hide();
                     $(".wfiedls4").show();
+                    $(".wfiedls5").hide();
                     break;
                   case "json":
                     $(".wfiedls").hide();
@@ -65,6 +79,7 @@
                     $(".wfiedls2").hide();
                     $(".wfiedls3").show();
                     $(".wfiedls4").hide();
+                    $(".wfiedls5").hide();
                     break;
                   case "jsonpath":
                     $(".wfiedls").hide();
@@ -72,6 +87,7 @@
                     $(".wfiedls2").hide();
                     $(".wfiedls3").show();
                     $(".wfiedls4").hide();
+                    $(".wfiedls5").hide();
                     break;
                   case "xml":
                     $(".wfiedls").hide();
@@ -79,10 +95,20 @@
                     $(".wfiedls2").hide();
                     $(".wfiedls3").show();
                     $(".wfiedls4").hide();
+                    $(".wfiedls5").hide();
+                    break;
+                  case "httppost":
+                    wpath.value = wtransport.value + "://{{.PipelineName}}.cluster.svc.local:" + wport.value + "/extractsourcepush";
+                    $(".wfiedls").hide();
+                    $(".wfiedls0").hide();
+                    $(".wfiedls2").hide();
+                    $(".wfiedls3").hide();
+                    $(".wfiedls4").hide();
+                    $(".wfiedls5").show();
                     break;
                 }
-                var wtname = document.getElementById("extractsourcetablename");
-                wtname.value = "my" + scheme1.value + "table";
+                //var wtname = document.getElementById("extractsourcetablename");
+                //wtname.value = "my" + scheme1.value + "table";
             }
         </script>
     <body onload="check(this);">
@@ -107,6 +133,7 @@
                         <option>json</option>
                         <option>jsonpath</option>
                         <option>api</option>
+                        <option>httppost</option>
                     </select>
                 </div>
             </div>
@@ -149,11 +176,34 @@
             <div class="form-group row wfiedls3" id="multilinediv">
                 <label id="multilinelabel" for="multiline" class="col-sm-2 col-form-label">Multi-line</label>
                 <div class="col-sm-1">
-                    <input type="checkbox" class="form-control" id="multiline" name="multiline" value="true" data-toggle="tooltip" title="multiline content">
                     <select class="form-control" id="multiline" name="multiline" data-toggle="tooltip" title="multi-line content">
                         <option selected>false</option>
                         <option>true</option>
                     </select>
+                </div>
+            </div>
+            <div class="form-group row wfiedls5" id="portdiv">
+                <label id="portlabel" for="port" class="col-sm-2 col-form-label">Port</label>
+                <div class="col-sm-4">
+                    <input onChange="check(this);" type="number" min="10000" max="11000" class="form-control" id="port" name="port" value="10000" data-toggle="tooltip" title="port">
+                </div>
+            </div>
+            <div class="form-group row wfiedls5" id="transportdiv">
+                <label id="transportlabel" for="transport" class="col-sm-2 col-form-label">Transport</label>
+                <div class="col-sm-4">
+                    <select onChange="check(this);" class="form-control" id="transport" name="transport" data-toggle="tooltip" title="either http or https">
+                        <option selected>http</option>
+                        <option>https</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row wfiedls5" id="encodingdiv">
+                <label id="encodinglabel" for="encoding" class="col-sm-2 col-form-label">Encoding</label>
+                <div class="col-sm-4">
+                  <select class="form-control" id="encoding" name="encoding" data-toggle="tooltip" title="encoding of POST body">
+                        <option selected>urlencoded</option>
+                        <option>json</option>
+                  </select>
                 </div>
             </div>
             <div class="form-group row wfiedls4" id="sheetnamediv">
