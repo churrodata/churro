@@ -71,7 +71,7 @@ func (s *Server) CreateExtractSource(ctx context.Context, request *pb.CreateExtr
 		return nil, status.Errorf(codes.InvalidArgument,
 			"extract source regex is required")
 	}
-	if wdir.Skipheaders <= 0 && (wdir.Scheme == extractapi.APIScheme || wdir.Scheme == extractapi.XLSXScheme) {
+	if wdir.Skipheaders < 0 && (wdir.Scheme == extractapi.CSVScheme || wdir.Scheme == extractapi.XLSXScheme) {
 		return nil, status.Errorf(codes.InvalidArgument,
 			"extract source skipheaders is required to be >= 0")
 	}
