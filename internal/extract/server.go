@@ -156,7 +156,7 @@ func NewExtractServer(fileName, schemeValue, tableName string, debug bool, svcCr
 
 	s.createMetric()
 
-	log.Debug().Msg("NewExtractServer called processing started...")
+	log.Debug().Msg("NewExtractServer called processing started..." + schemeValue)
 	switch schemeValue {
 	case extractapi.HTTPPostScheme:
 		log.Info().Msg("Info: extract is processing a httppost config")

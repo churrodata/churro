@@ -29,7 +29,16 @@
             function showdiv(divId) {
                  $("#" + divId).show();
             }
-
+            function updatepath(elem) {
+                var scheme1 = document.getElementById("extractsourcescheme");
+                if( scheme1.value == "httppost" ) {
+                  var wname = document.getElementById("extractsourcename");
+                  var wtransport = document.getElementById("transport");
+                  var wpath = document.getElementById("extractsourcepath");
+                  var wport = document.getElementById("port");
+                  wpath.value = wtransport.value + "://" + wname.value + ".{{.PipelineName}}.cluster.svc.local:" + wport.value + "/extractsourcepush";
+                }
+            }
             function check(elem) {
                 var scheme1 = document.getElementById("extractsourcescheme");
                 var wname = document.getElementById("extractsourcename");
@@ -95,7 +104,7 @@
                     $(".wfiedls5").hide();
                     break;
                   case "httppost":
-                    wpath.value = wtransport.value + "://{{.PipelineName}}.cluster.svc.local:" + wport.value + "/extractsourcepush";
+                    wpath.value = wtransport.value + "://" + wname.value + ".{{.PipelineName}}.cluster.svc.local:" + wport.value + "/extractsourcepush";
                     //showdiv('portdiv');
                     $(".wfiedls").hide();
                     $(".wfiedls0").hide();
@@ -135,7 +144,7 @@
             <div class="form-group ">
                 <label for="extractsourcename" class="col-sm-2 col-form-label">Name</label>
                 <div class="col-sm-4">
-                    <input type="text" class="form-control" id="extractsourcename" name="extractsourcename" value="{{.ExtractSource.Name}}">
+                    <input type="text" onChange="updatepath(this);" class="form-control" id="extractsourcename" name="extractsourcename" value="{{.ExtractSource.Name}}">
                 </div>
             </div>
             <div class="form-group ">
