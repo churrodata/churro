@@ -66,6 +66,7 @@ type ExtractSource struct {
 	Port           int    `json:"port"`
 	Encoding       string `json:"encoding"`
 	Transport      string `json:"transport"`
+	Servicetype    string `json:"servicetype"`
 	// Initialized is calculated, not persisted
 	Initialized  bool                   `json:"initialized"`
 	Running      bool                   `json:"running"`

@@ -108,7 +108,7 @@ func (s Server) getJobs() (jobs []*pb.PipelineJobStatus, err error) {
 		p := pods.Items[i]
 		m1 := pb.PipelineJobStatus{
 			Name:          p.Name,
-			Datasource:    p.ObjectMeta.Labels["watchdirname"],
+			Datasource:    p.ObjectMeta.Labels["extractsourcename"],
 			Status:        string(p.Status.Phase),
 			StartDate:     p.Status.StartTime.Format("2006-01-02 15:04:05"),
 			CompletedDate: "",

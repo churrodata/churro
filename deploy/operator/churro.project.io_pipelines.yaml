@@ -229,6 +229,8 @@ spec:
                       type: string
                     port:
                       type: integer
+                    servicetype:
+                      type: string
                   required:
                   - id
                   - name

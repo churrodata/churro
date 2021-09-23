@@ -83,6 +83,7 @@ type ExtractSourceDefinition struct {
 	Port           int    `json:"port"`
 	Encoding       string `json:"encoding"`
 	Transport      string `json:"transport"`
+	Servicetype    string `json:"servicetype"`
 }
 
 // PipelineSpec defines the desired state of Pipeline

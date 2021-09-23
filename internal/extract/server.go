@@ -158,6 +158,12 @@ func NewExtractServer(fileName, schemeValue, tableName string, debug bool, svcCr
 
 	log.Debug().Msg("NewExtractServer called processing started...")
 	switch schemeValue {
+	case extractapi.HTTPPostScheme:
+		log.Info().Msg("Info: extract is processing a httppost config")
+		err = s.ExtractHTTPPost(ctx)
+		if err != nil {
+			log.Error().Stack().Err(err).Msg("error in httppost processing")
+		}
 	case extractapi.APIScheme:
 		log.Info().Msg("Info: extract is processing a API config")
 		err = s.ExtractAPI(ctx)
@@ -203,7 +209,7 @@ func NewExtractServer(fileName, schemeValue, tableName string, debug bool, svcCr
 	switch schemeValue {
 	default:
 		s.bumpMetric(churroDB)
-		if schemeValue != extractapi.APIScheme {
+		if schemeValue != extractapi.APIScheme && schemeValue != extractapi.HTTPPostScheme {
 			s.renameFile(fileName)
 		}
 	}

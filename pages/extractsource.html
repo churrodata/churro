@@ -202,6 +202,20 @@
                     </select>
                 </div>
             </div>
+            <div class="form-group wfiedls5" id="servicetypediv">
+                <label id="servicetypelabel" for="servicetype" class="col-sm-2 col-form-label">Service Type</label>
+                <div class="col-sm-4">
+                  <select disabled class="form-control" id="servicetype" name="servicetype" data-toggle="tooltip" title="service type httppost Service">
+            {{ if eq .ExtractSource.Servicetype "ClusterIP"}} 
+                        <option selected>ClusterIP</option>
+                        <option>LoadBalancer</option>
+            {{ else }}
+                        <option>ClusterIP</option>
+                        <option selected>LoadBalancer</option>
+            {{ end }}
+                  </select>
+                </div>
+            </div>
             <div class="form-group wfiedls5" id="encodingdiv">
                 <label id="encodinglabel" for="encoding" class="col-sm-2 col-form-label">Encoding</label>
                 <div class="col-sm-4">
@@ -211,7 +225,7 @@
                         <option>json</option>
             {{ else }}
                         <option>urlencoded</option>
-                        <option>json</option>
+                        <option selected>json</option>
             {{ end }}
                   </select>
                 </div>
