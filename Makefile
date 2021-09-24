@@ -155,8 +155,8 @@ compile-extract:
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=require_unimplemented_servers=false:. --go-grpc_opt=paths=source_relative rpc/extract/extract.proto
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=require_unimplemented_servers=false:. --go-grpc_opt=paths=source_relative rpc/extension/extension.proto
 	go build -o build/churro-extract cmd/churro-extract/churro-extract.go
-build-extract-image-local:
-	docker build  -f ./images/Dockerfile.churro-extract -t docker.io/churrodata/churro-extract .
+build-extract-image-local: compile-extract
+	docker build  -f ./images/Dockerfile.churro-extract.local -t docker.io/churrodata/churro-extract .
 build-extract-image:
 	docker buildx build --load --platform $(PLATFORMS) -f ./images/Dockerfile.churro-extract -t docker.io/churrodata/churro-extract .
 

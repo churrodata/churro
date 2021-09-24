@@ -100,9 +100,9 @@ func (d CockroachChurroDatabase) GetBulkInsertStatement(scheme, database, tableN
 
 	var currentRecord int
 	for _, r := range records {
-		//log.Info().Msg(fmt.Sprintf("jeff colTypes %v\n", colTypes))
-		//log.Info().Msg(fmt.Sprintf("jeff cols %v\n", cols))
-		//log.Info().Msg(fmt.Sprintf("jeff r.Cols %v\n", r.Cols))
+		//log.Info().Msg(fmt.Sprintf("colTypes %v\n", colTypes))
+		//log.Info().Msg(fmt.Sprintf("cols %v\n", cols))
+		//log.Info().Msg(fmt.Sprintf("r.Cols %v\n", r.Cols))
 		currentRecord++
 		var tmp string
 		var colValues string

@@ -119,6 +119,7 @@ func NewExtractServer(fileName, schemeValue, tableName string, debug bool, svcCr
 				Cronexpression: c.Cronexpression,
 				Skipheaders:    c.Skipheaders,
 				Sheetname:      c.Sheetname,
+				Encoding:       c.Encoding,
 				ExtractRules:   make(map[string]domain.ExtractRule),
 			}
 			g := pipelineToUpdate.Spec.Extractrules

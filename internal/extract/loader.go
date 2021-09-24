@@ -39,6 +39,8 @@ func (s *Server) process(jp domain.JobProfile, xyz db.ChurroDatabase, database s
 		s.processJSONPath(jp, xyz, database, elem)
 	case extractapi.JSONScheme:
 		s.processJSON(jp, xyz, database, elem)
+	case extractapi.HTTPPostScheme:
+		s.processHTTPPost(jp, xyz, database, elem)
 	default:
 		log.Error().Stack().Msg("invalid scheme found in process " + s.SchemeValue)
 	}
@@ -274,4 +276,34 @@ func (s *Server) processAPI(jp domain.JobProfile, churroDB db.ChurroDatabase, pi
 		return
 	}
 
+}
+
+func (s *Server) processHTTPPost(jp domain.JobProfile, churroDB db.ChurroDatabase, database string, elem extractapi.LoaderMessage) {
+
+	//unmarshal elem metadata into CSV message
+	var csvMsg extractapi.CSVFormat
+	err := json.Unmarshal(elem.Metadata, &csvMsg)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("error in unmarshal")
+		return
+	}
+
+	err = churroDB.GetBulkInsertStatement(extractapi.HTTPPostScheme, database, csvMsg.Tablename, csvMsg.ColumnNames, csvMsg.Records, csvMsg.ColumnTypes)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("error in bulk insert ")
+		return
+	}
+
+	t := stats.PipelineStats{
+		DataprovID: csvMsg.Dataprov,
+		Pipeline:   csvMsg.PipelineName,
+		FileName:   csvMsg.Path,
+		RecordsIn:  int64(len(csvMsg.Records)),
+	}
+
+	err = churroDB.UpdatePipelineStats(t)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("error in stats update ")
+		return
+	}
 }
