@@ -14,6 +14,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -21,6 +22,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/ohler55/ojg/oj"
 	"github.com/rs/zerolog/log"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -40,6 +42,7 @@ type httppostwrapper struct {
 	RawJSONMessage bool
 	CSVStruct      extractapi.CSVFormat
 	Server         *Server
+	DP             domain.DataProvenance
 }
 
 // ExtractHTTPPost listen for any http posts
@@ -47,13 +50,6 @@ func (s *Server) ExtractHTTPPost(ctx context.Context) (err error) {
 
 	log.Info().Msg("ExtractHTTPPost ...api URL " + s.ExtractSource.Path)
 
-	u := httppostwrapper{
-		Encoding: s.ExtractSource.Encoding,
-		Server:   s,
-	}
-	log.Info().Msg("setting encoding to " + u.Encoding)
-
-	// register to dataprov
 	dp := domain.DataProvenance{
 		Name: s.FileName,
 		Path: s.FileName,
@@ -65,11 +61,12 @@ func (s *Server) ExtractHTTPPost(ctx context.Context) (err error) {
 	}
 	log.Info().Msg(fmt.Sprintf("dp info %+v", dp))
 
-	csvStruct := extractapi.CSVFormat{}
-
-	log.Info().Msg(fmt.Sprintf("csvStruct at top is %+v", csvStruct))
-	csvStruct.Path = dp.Path
-	csvStruct.Dataprov = dp.ID
+	u := httppostwrapper{
+		Encoding: s.ExtractSource.Encoding,
+		Server:   s,
+		DP:       dp,
+	}
+	log.Info().Msg("setting encoding to " + u.Encoding)
 
 	//apiurl := s.ExtractSource.Path
 
@@ -91,6 +88,7 @@ func (s *Server) ExtractHTTPPost(ctx context.Context) (err error) {
 	}
 	log.Info().Msg("inserted Extractlog")
 
+	/**
 	var churroDB db.ChurroDatabase
 	churroDB, err = db.NewChurroDB(s.Pi.Spec.DatabaseType)
 	if err != nil {
@@ -102,15 +100,20 @@ func (s *Server) ExtractHTTPPost(ctx context.Context) (err error) {
 		log.Error().Stack().Err(err).Msg("error connecting to the database")
 		return err
 	}
+	*/
 
-	csvStruct.Tablename = s.TableName
+	u.CSVStruct = extractapi.CSVFormat{
+		Path:      u.DP.Path,
+		Dataprov:  u.DP.ID,
+		Tablename: s.TableName,
+	}
+
+	u.CSVStruct.Columns = make([]extractapi.Column, 0)
+	u.CSVStruct.ColumnNames = make([]string, 0)
+	u.CSVStruct.ColumnTypes = make([]string, 0)
 
 	// pull out all the extract rules column information
 	if len(s.ExtractSource.ExtractRules) > 0 {
-
-		csvStruct.Columns = make([]extractapi.Column, 0)
-		csvStruct.ColumnNames = make([]string, 0)
-		csvStruct.ColumnTypes = make([]string, 0)
 
 		//allCols := make([][]interface{}, 0)
 		//var rows int
@@ -122,26 +125,18 @@ func (s *Server) ExtractHTTPPost(ctx context.Context) (err error) {
 				Path: r.ColumnPath,
 				Type: r.ColumnType,
 			}
-			csvStruct.Columns = append(csvStruct.Columns, ec)
-			csvStruct.ColumnNames = append(csvStruct.ColumnNames, r.ColumnName)
-			csvStruct.ColumnTypes = append(csvStruct.ColumnTypes, r.ColumnType)
+			u.CSVStruct.Columns = append(u.CSVStruct.Columns, ec)
+			u.CSVStruct.ColumnNames = append(u.CSVStruct.ColumnNames, r.ColumnName)
+			u.CSVStruct.ColumnTypes = append(u.CSVStruct.ColumnTypes, r.ColumnType)
 		}
 	} else if len(s.ExtractSource.ExtractRules) == 0 && s.ExtractSource.Encoding == "json" {
 		//this means we will store the httppost as a raw json message
 		u.RawJSONMessage = true
-		csvStruct.ColumnNames = []string{"metadata"}
-		csvStruct.ColumnTypes = []string{"jsonb"}
+		u.CSVStruct.ColumnNames = []string{"metadata"}
+		u.CSVStruct.ColumnTypes = []string{"jsonb"}
 	}
 
-	u.CSVStruct = csvStruct
 	u.CSVStruct.PipelineName = s.Pi.Name
-
-	// see if the database table has been created, create it if not
-	err = s.tableCheck(csvStruct.ColumnNames, csvStruct.ColumnTypes)
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("error during tableCheck ")
-		return err
-	}
 
 	port := DEFAULT_HTTPPOST_PORT
 
@@ -156,6 +151,13 @@ func (s *Server) ExtractHTTPPost(ctx context.Context) (err error) {
 	if err != nil {
 		log.Error().Stack().Err(err).Msg("error creating Service")
 		return err
+	}
+
+	// see if the database table has been created, create it if not
+	err = u.Server.tableCheck(u.CSVStruct.ColumnNames, u.CSVStruct.ColumnTypes)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("error during tableCheck ")
+		return
 	}
 
 	// listen for posts
@@ -188,17 +190,37 @@ func (u *httppostwrapper) ExtractSourceHTTPPost(w http.ResponseWriter, r *http.R
 	log.Info().Msg(fmt.Sprintf("columns %+v", u.CSVStruct.Columns))
 	fmt.Printf("http request %+v\n", r)
 	log.Info().Msg("u.Encoding here is " + u.Encoding)
+	var err error
+
 	if u.Encoding == "urlencoded" {
 		r.ParseForm()
 
-		u.CSVStruct.Records = getRowFromForm(r.Form, u.CSVStruct)
+		u.CSVStruct.Records, err = u.getRowFromForm(r.Form)
+		if err != nil {
+			return
+		}
 		log.Info().Msg(fmt.Sprintf("records is %+v", u.CSVStruct.Records))
 	} else {
+
+		b, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			log.Error().Stack().Err(err).Msg("error reading json from body")
+			return
+		}
+		log.Info().Msg(fmt.Sprintf("json request body is %s", string(b)))
 		// json case
 		if u.RawJSONMessage {
 			//assume a single column of jsonb type is the desired action
+			log.Info().Msg("TODO raw json message to be processed")
+			return
 		} else {
 			// assume jsonpath columns to be extracted
+			u.CSVStruct.Records, err = u.getRowFromJSON(string(b))
+			if err != nil {
+				return
+			}
+			log.Info().Msg(fmt.Sprintf("records is %+v", u.CSVStruct.Records))
+			log.Info().Msg("extracting from json message")
 		}
 	}
 
@@ -312,15 +334,60 @@ func createService(pipelineName, extractSourceName string, port int32, serviceTy
 	return nil
 }
 
+// getRowFromJSON parses out a single row from a single JSON message
+func (u *httppostwrapper) getRowFromJSON(jsonMessage string) (row []extractapi.GenericRow, err error) {
+
+	obj, parseError := oj.ParseString(jsonMessage)
+	if parseError != nil {
+		log.Error().Err(parseError).Stack().Msg("jsonpath parse error")
+		return row, parseError
+	}
+
+	allCols := make([][]interface{}, 0)
+
+	for _, r := range u.Server.ExtractSource.ExtractRules {
+
+		cols, err := getJSONPathColumns(obj, r.ColumnPath)
+		if err != nil {
+			log.Error().Stack().Err(err).Msg("some error")
+			return row, err
+		}
+		log.Info().Msg(fmt.Sprintf("jeff cols here is %+v", cols))
+		allCols = append(allCols, cols)
+	}
+
+	//for row := 0; row < rows; row++ {
+	thisrow := extractapi.GenericRow{
+		Key: time.Now().UnixNano(),
+	}
+	thisrow.Cols = make([]interface{}, 0)
+	for cell := 0; cell < len(allCols); cell++ {
+		thisrow.Cols = append(thisrow.Cols, allCols[cell][0])
+	}
+
+	/**
+	err := transform.RunRules(jsonStruct.ColumnNames, r.Cols, s.ExtractSource.ExtractRules, s.TransformFunctions)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("error in run rules")
+	}
+	*/
+	//u.CSVStruct.Records = append(u.CSVStruct.Records, r)
+	//}
+	row = append(row, thisrow)
+
+	return row, nil
+}
+
 // getRowFromForm parses out a single row from the http form
-func getRowFromForm(form url.Values, raw extractapi.CSVFormat) (row []extractapi.GenericRow) {
+func (u *httppostwrapper) getRowFromForm(form url.Values) (row []extractapi.GenericRow, err error) {
+
 	//cols := make([][]string, 1)
 
 	thisrow := extractapi.GenericRow{}
 	thisrow.Key = time.Now().UnixNano()
 
-	for i := 0; i < len(raw.Columns); i++ {
-		c := raw.Columns[i]
+	for i := 0; i < len(u.CSVStruct.Columns); i++ {
+		c := u.CSVStruct.Columns[i]
 		//firstname := r.Form["firstname"][0]
 		log.Info().Msg("would extract from url form name:" + c.Name + " path:" + c.Path + " type:" + c.Type)
 		val := form[c.Path][0]
@@ -330,5 +397,5 @@ func getRowFromForm(form url.Values, raw extractapi.CSVFormat) (row []extractapi
 
 	row = append(row, thisrow)
 
-	return row
+	return row, nil
 }
