@@ -24,7 +24,6 @@ import (
 	"github.com/rs/zerolog/log"
 
 	extractapi "github.com/churrodata/churro/api/extract"
-	"github.com/churrodata/churro/internal/dataprov"
 	"github.com/churrodata/churro/internal/db"
 	"github.com/churrodata/churro/internal/domain"
 	"github.com/churrodata/churro/internal/transform"
@@ -35,34 +34,15 @@ func (s *Server) ExtractAPI(ctx context.Context) (err error) {
 
 	log.Info().Msg("ExtractAPI ...api URL " + s.ExtractSource.Path)
 
-	// register to dataprov
-	dp := domain.DataProvenance{
-		Name: s.FileName,
-		Path: s.FileName,
-	}
-	err = dataprov.Register(&dp, s.Pi, s.DBCreds)
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("can not register data prov")
-		os.Exit(1)
-	}
-	log.Info().Msg(fmt.Sprintf("dp info %+v", dp))
-
 	// initialize with the single message default
 	jsonStruct := extractapi.RawFormat{
 		ColumnNames: []string{"metadata"},
 		ColumnTypes: []string{"jsonb"},
 	}
 
-	// update if we have extract rules defined
-	if len(s.ExtractSource.ExtractRules) > 0 {
-		//jsonStruct.Columns = getColumns(s.ExtractSource)
-		//jsonStruct.ColumnNames = getColumnNames(jsonStruct.Columns)
-		//jsonStruct.ColumnTypes = getColumnTypes(jsonStruct.Columns)
-	}
-
 	log.Info().Msg(fmt.Sprintf("jsonStruct at top is %+v", jsonStruct))
-	jsonStruct.Path = dp.Path
-	jsonStruct.Dataprov = dp.ID
+	jsonStruct.Path = s.DP.Path
+	jsonStruct.Dataprov = s.DP.ID
 
 	apiurl := s.ExtractSource.Path
 
@@ -70,7 +50,7 @@ func (s *Server) ExtractAPI(ctx context.Context) (err error) {
 		ID:               os.Getenv("CHURRO_EXTRACTLOG"),
 		JobName:          os.Getenv("POD_NAME"),
 		StartDate:        time.Now().Format("2006-01-02 15:04:05"),
-		DataProvenanceID: dp.ID,
+		DataProvenanceID: s.DP.ID,
 		FileName:         s.FileName,
 		TableName:        s.ExtractSource.Tablename,
 		RecordsLoaded:    0,

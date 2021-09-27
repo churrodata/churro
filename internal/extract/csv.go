@@ -24,7 +24,6 @@ import (
 	"github.com/rs/zerolog/log"
 
 	extractapi "github.com/churrodata/churro/api/extract"
-	"github.com/churrodata/churro/internal/dataprov"
 	"github.com/churrodata/churro/internal/db"
 	"github.com/churrodata/churro/internal/domain"
 	"github.com/churrodata/churro/internal/transform"
@@ -41,19 +40,11 @@ func (s *Server) ExtractCSV(ctx context.Context) (err error) {
 		return err
 	}
 
-	dp := domain.DataProvenance{Name: s.FileName, Path: s.FileName}
-	err = dataprov.Register(&dp, s.Pi, s.DBCreds)
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("can not register data prov ")
-		os.Exit(1)
-	}
-	log.Info().Msg(fmt.Sprintf("dp info %v", dp))
-
 	r := csv.NewReader(csvfile)
 
 	csvStruct := extractapi.GenericFormat{
 		Path:         s.FileName,
-		Dataprov:     dp.ID,
+		Dataprov:     s.DP.ID,
 		PipelineName: s.Pi.Name,
 		Columns:      sortByPath(getColumns(s.ExtractSource)),
 	}
@@ -104,14 +95,6 @@ func (s *Server) ExtractCSV(ctx context.Context) (err error) {
 		// process the csv header which we expect to be there
 		if recordsRead <= s.ExtractSource.Skipheaders {
 			log.Info().Msg(fmt.Sprintf("skipping header %d", recordsRead))
-			/**
-			firstRow = false
-			err := s.tableCheck(csvStruct.ColumnNames, csvStruct.ColumnTypes)
-			if err != nil {
-				return err
-			}
-			csvStruct.Tablename = s.TableName
-			*/
 		} else {
 			tmp := make([]interface{}, len(record))
 			for i, v := range record {
@@ -140,7 +123,7 @@ func (s *Server) ExtractCSV(ctx context.Context) (err error) {
 				ID:               os.Getenv("CHURRO_EXTRACTLOG"),
 				JobName:          os.Getenv("POD_NAME"),
 				StartDate:        time.Now().Format("2006-01-02 15:04:05"),
-				DataProvenanceID: dp.ID,
+				DataProvenanceID: s.DP.ID,
 				FileName:         s.FileName,
 				TableName:        s.TableName,
 				RecordsLoaded:    recordsRead,

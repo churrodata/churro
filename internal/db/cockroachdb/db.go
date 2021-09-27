@@ -173,7 +173,7 @@ func (d *CockroachChurroDatabase) GetConnection(dbCreds config.DBCredentials, so
 	}
 
 	pgConnectString := dbCreds.GetDBConnectString(source)
-	log.Info().Msg(pgConnectString)
+	//log.Info().Msg(pgConnectString)
 	d.Connection, err = sql.Open("postgres", pgConnectString)
 	if err != nil {
 		log.Error().Stack().Err(err).Msg("error in GetConnection")

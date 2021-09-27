@@ -21,7 +21,6 @@ import (
 	"github.com/rs/zerolog/log"
 
 	extractapi "github.com/churrodata/churro/api/extract"
-	"github.com/churrodata/churro/internal/dataprov"
 	"github.com/churrodata/churro/internal/db"
 	"github.com/churrodata/churro/internal/domain"
 	"github.com/churrodata/churro/internal/transform"
@@ -45,15 +44,6 @@ func (s *Server) ExtractJSONPath(ctx context.Context) (err error) {
 	if parseError != nil {
 		return fmt.Errorf("error parsing rule: %s %v", string(byteValue), err)
 	}
-	dp := domain.DataProvenance{
-		Name: s.FileName,
-		Path: s.FileName,
-	}
-	err = dataprov.Register(&dp, s.Pi, s.DBCreds)
-	if err != nil {
-		return fmt.Errorf("can not register data prov %v %v", dp, err)
-	}
-	log.Debug().Msg(fmt.Sprintf("dp info %v", dp))
 
 	var churroDB db.ChurroDatabase
 	churroDB, err = db.NewChurroDB(s.Pi.Spec.DatabaseType)
@@ -67,8 +57,8 @@ func (s *Server) ExtractJSONPath(ctx context.Context) (err error) {
 	}
 
 	jsonStruct := extractapi.GenericFormat{
-		Path:         dp.Path,
-		Dataprov:     dp.ID,
+		Path:         s.DP.Path,
+		Dataprov:     s.DP.ID,
 		PipelineName: s.Pi.Name,
 	}
 	log.Info().Msg(fmt.Sprintf("wdir %+v\n", s.ExtractSource))
@@ -139,7 +129,7 @@ func (s *Server) ExtractJSONPath(ctx context.Context) (err error) {
 		ID:               os.Getenv("CHURRO_EXTRACTLOG"),
 		JobName:          os.Getenv("POD_NAME"),
 		StartDate:        time.Now().Format("2006-01-02 15:04:05"),
-		DataProvenanceID: dp.ID,
+		DataProvenanceID: s.DP.ID,
 		FileName:         s.FileName,
 		RecordsLoaded:    rows,
 	}

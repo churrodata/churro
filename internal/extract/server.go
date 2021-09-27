@@ -19,6 +19,7 @@ import (
 
 	extractapi "github.com/churrodata/churro/api/extract"
 	"github.com/churrodata/churro/api/v1alpha1"
+	"github.com/churrodata/churro/internal/dataprov"
 	"github.com/churrodata/churro/internal/db"
 	"github.com/churrodata/churro/internal/domain"
 	"github.com/churrodata/churro/pkg"
@@ -38,6 +39,7 @@ type Server struct {
 	TableName          string
 	SchemeValue        string
 	FileName           string
+	DP                 domain.DataProvenance
 	TransformFunctions []domain.TransformFunction
 	ExtractSource      domain.ExtractSource
 	APIStopTime        int
@@ -55,7 +57,18 @@ func NewExtractServer(fileName, schemeValue, tableName string, debug bool, svcCr
 		TableName:    tableName,
 	}
 
+	s.DP = domain.DataProvenance{
+		Name: s.FileName,
+		Path: s.FileName,
+	}
 	var err error
+	err = dataprov.Register(&s.DP, s.Pi, s.DBCreds)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("can not register data prov")
+		os.Exit(1)
+	}
+	log.Info().Msg(fmt.Sprintf("dp info %+v", s.DP))
+
 	var churroDB db.ChurroDatabase
 
 	churroDB, err = db.NewChurroDB(pipeline.Spec.DatabaseType)
@@ -100,8 +113,6 @@ func NewExtractServer(fileName, schemeValue, tableName string, debug bool, svcCr
 		s.TransformFunctions = append(s.TransformFunctions, fn)
 	}
 
-	//s.TransformFunctions, err = churroDB.GetTransformFunctions()
-
 	log.Info().Msg(fmt.Sprintf("transform functions %d\n", len(s.TransformFunctions)))
 
 	wdirName := os.Getenv("CHURRO_WATCHDIR_NAME")
@@ -120,6 +131,7 @@ func NewExtractServer(fileName, schemeValue, tableName string, debug bool, svcCr
 				Skipheaders:    c.Skipheaders,
 				Sheetname:      c.Sheetname,
 				Encoding:       c.Encoding,
+				Transport:      c.Transport,
 				ExtractRules:   make(map[string]domain.ExtractRule),
 			}
 			g := pipelineToUpdate.Spec.Extractrules
@@ -214,8 +226,6 @@ func NewExtractServer(fileName, schemeValue, tableName string, debug bool, svcCr
 			s.renameFile(fileName)
 		}
 	}
-
-	// dataprov_id, podname, poddate, recordsloaded
 
 	return s
 }

@@ -20,7 +20,6 @@ import (
 	"time"
 
 	extractapi "github.com/churrodata/churro/api/extract"
-	"github.com/churrodata/churro/internal/dataprov"
 	"github.com/churrodata/churro/internal/db"
 	"github.com/churrodata/churro/internal/domain"
 	"github.com/churrodata/churro/internal/transform"
@@ -53,18 +52,6 @@ func (s *Server) ExtractXML(ctx context.Context) (err error) {
 		return err
 	}
 
-	// register data provenance
-	dp := domain.DataProvenance{
-		Name: s.FileName,
-		Path: s.FileName,
-	}
-	err = dataprov.Register(&dp, s.Pi, s.DBCreds)
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("can not register data prov")
-		os.Exit(1)
-	}
-	log.Info().Msg("dp info " + dp.Name + dp.Path)
-
 	var churroDB db.ChurroDatabase
 	churroDB, err = db.NewChurroDB(s.Pi.Spec.DatabaseType)
 	if err != nil {
@@ -84,7 +71,7 @@ func (s *Server) ExtractXML(ctx context.Context) (err error) {
 	xmlStruct := getXMLFormat(rules, root)
 
 	xmlStruct.Path = s.FileName
-	xmlStruct.Dataprov = dp.ID
+	xmlStruct.Dataprov = s.DP.ID
 	xmlStruct.PipelineName = s.Pi.Name
 	xmlStruct.Tablename = s.TableName
 
@@ -126,7 +113,7 @@ func (s *Server) ExtractXML(ctx context.Context) (err error) {
 			ID:               os.Getenv("CHURRO_EXTRACT"),
 			JobName:          os.Getenv("POD_NAME"),
 			StartDate:        time.Now().Format("2006-01-02 15:04:05"),
-			DataProvenanceID: dp.ID,
+			DataProvenanceID: s.DP.ID,
 			FileName:         s.FileName,
 			RecordsLoaded:    recordsProcessed,
 		}

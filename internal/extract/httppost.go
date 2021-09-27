@@ -29,7 +29,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	extractapi "github.com/churrodata/churro/api/extract"
-	"github.com/churrodata/churro/internal/dataprov"
 	"github.com/churrodata/churro/internal/db"
 	"github.com/churrodata/churro/internal/domain"
 	"github.com/churrodata/churro/internal/transform"
@@ -43,7 +42,6 @@ type httppostwrapper struct {
 	RawJSONMessage bool
 	CSVStruct      extractapi.GenericFormat
 	Server         *Server
-	DP             domain.DataProvenance
 }
 
 // ExtractHTTPPost listen for any http posts
@@ -51,31 +49,17 @@ func (s *Server) ExtractHTTPPost(ctx context.Context) (err error) {
 
 	log.Info().Msg("ExtractHTTPPost ...api URL " + s.ExtractSource.Path)
 
-	dp := domain.DataProvenance{
-		Name: s.FileName,
-		Path: s.FileName,
-	}
-	err = dataprov.Register(&dp, s.Pi, s.DBCreds)
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("can not register data prov")
-		os.Exit(1)
-	}
-	log.Info().Msg(fmt.Sprintf("dp info %+v", dp))
-
 	u := httppostwrapper{
 		Encoding: s.ExtractSource.Encoding,
 		Server:   s,
-		DP:       dp,
 	}
 	log.Info().Msg("setting encoding to " + u.Encoding)
-
-	//apiurl := s.ExtractSource.Path
 
 	jobProfile := domain.JobProfile{
 		ID:               os.Getenv("CHURRO_EXTRACTLOG"),
 		JobName:          os.Getenv("POD_NAME"),
 		StartDate:        time.Now().Format("2006-01-02 15:04:05"),
-		DataProvenanceID: dp.ID,
+		DataProvenanceID: s.DP.ID,
 		FileName:         s.FileName,
 		TableName:        s.ExtractSource.Tablename,
 		RecordsLoaded:    0,
@@ -89,23 +73,9 @@ func (s *Server) ExtractHTTPPost(ctx context.Context) (err error) {
 	}
 	log.Info().Msg("inserted Extractlog")
 
-	/**
-	var churroDB db.ChurroDatabase
-	churroDB, err = db.NewChurroDB(s.Pi.Spec.DatabaseType)
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("error creating the database")
-		return err
-	}
-	err = churroDB.GetConnection(s.DBCreds, s.Pi.Spec.DataSource)
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("error connecting to the database")
-		return err
-	}
-	*/
-
 	u.CSVStruct = extractapi.GenericFormat{
-		Path:      u.DP.Path,
-		Dataprov:  u.DP.ID,
+		Path:      s.DP.Path,
+		Dataprov:  s.DP.ID,
 		Tablename: s.ExtractSource.Tablename,
 	}
 
@@ -116,8 +86,6 @@ func (s *Server) ExtractHTTPPost(ctx context.Context) (err error) {
 	// pull out all the extract rules column information
 	if len(s.ExtractSource.ExtractRules) > 0 {
 
-		//allCols := make([][]interface{}, 0)
-		//var rows int
 		log.Info().Msg(fmt.Sprintf("user has %d extract rules defined\n", len(s.ExtractSource.ExtractRules)))
 		for _, r := range s.ExtractSource.ExtractRules {
 
@@ -167,11 +135,10 @@ func (s *Server) ExtractHTTPPost(ctx context.Context) (err error) {
 
 	r.HandleFunc("/extractsourcepost", u.ExtractSourceHTTPPost).Methods("POST")
 
-	secure := false
-
-	if secure {
+	log.Info().Msg("transport here is " + s.ExtractSource.Transport)
+	if s.ExtractSource.Transport == "https" {
 		log.Info().Msg("transport https")
-		err = http.ListenAndServeTLS(":"+port, "./certs/ui/https-server.crt", "./certs/ui/https-server.key", r)
+		err = http.ListenAndServeTLS(":"+port, "/servicecerts/service.crt", "/servicecerts/service.key", r)
 
 	} else {
 		log.Info().Msg("transport http")
@@ -237,15 +204,6 @@ func (u *httppostwrapper) ExtractSourceHTTPPost(w http.ResponseWriter, r *http.R
 		}
 	}
 
-	/**
-	err := transform.RunRules(u.CSVStruct.ColumnNames, u.CSVStruct.Records[0].Cols, s.ExtractSource.ExtractRules, s.TransformFunctions)
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("error in RunRules ")
-	}
-	log.Info().Msg(fmt.Sprintf("after transform %+v", xmlStruct.Records[i].Cols))
-	*/
-
-	//httppostBytes, _ := json.Marshal(u.CSVStruct)
 	msg.Metadata = someBytes
 	jobProfile := domain.JobProfile{
 		ID:               os.Getenv("CHURRO_EXTRACT"),
@@ -368,7 +326,6 @@ func (u *httppostwrapper) getRowFromJSON(jsonMessage string) (someBytes []byte, 
 		allCols = append(allCols, cols)
 	}
 
-	//for row := 0; row < rows; row++ {
 	thisrow := extractapi.GenericRow{
 		Key: time.Now().UnixNano(),
 	}
@@ -377,14 +334,6 @@ func (u *httppostwrapper) getRowFromJSON(jsonMessage string) (someBytes []byte, 
 		thisrow.Cols = append(thisrow.Cols, allCols[cell][0])
 	}
 
-	/**
-	err := transform.RunRules(jsonStruct.ColumnNames, r.Cols, s.ExtractSource.ExtractRules, s.TransformFunctions)
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("error in run rules")
-	}
-	*/
-	//u.CSVStruct.Records = append(u.CSVStruct.Records, r)
-	//}
 	row = append(row, thisrow)
 	u.CSVStruct.Records = row
 
@@ -401,8 +350,6 @@ func (u *httppostwrapper) getRowFromJSON(jsonMessage string) (someBytes []byte, 
 
 // getRowFromForm parses out a single row from the http form
 func (u *httppostwrapper) getRowFromForm(form url.Values) (someBytes []byte, err error) {
-
-	//cols := make([][]string, 1)
 
 	row := make([]extractapi.GenericRow, 0)
 	thisrow := extractapi.GenericRow{}
@@ -442,8 +389,8 @@ func (u *httppostwrapper) getRawRowFromJSON(byteValue []byte) (someBytes []byte,
 	}
 
 	jsonStruct := extractapi.IntermediateFormat{
-		Path:        u.DP.Path,
-		Dataprov:    u.DP.ID,
+		Path:        u.Server.DP.Path,
+		Dataprov:    u.Server.DP.ID,
 		ColumnNames: make([]string, 0),
 		ColumnTypes: make([]string, 0),
 		Messages:    make([]map[string]interface{}, 0),
