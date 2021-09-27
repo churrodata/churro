@@ -134,16 +134,11 @@ push:
 	    docker push docker.io/churrodata/$$i:latest; \
 	done
 	#docker push docker.io/churrodata/churro/memsql-studio:latest
-release: 
-	for i in $(images); do \
-		echo $$i; \
-		docker tag docker.io/churrodata/$$i:latest docker.io/churrodata/$$i:$(TAG); \
-	    docker push docker.io/churrodata/$$i:$(TAG); \
-	done
 
 
 build-memsql-studio: 
 	docker build -f ./images/Dockerfile.memsql-studio -t docker.io/churrodata/memsql-studio .
+
 compile-ui:
 	go build -o build/churro-ui ui/main.go
 build-ui-image-local:
@@ -151,24 +146,29 @@ build-ui-image-local:
 build-ui-image:
 	docker buildx build --load --platform $(PLATFORMS) -f ./images/Dockerfile.churro-ui -t docker.io/churrodata/churro-ui .
 
+
 compile-extract:
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=require_unimplemented_servers=false:. --go-grpc_opt=paths=source_relative rpc/extract/extract.proto
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=require_unimplemented_servers=false:. --go-grpc_opt=paths=source_relative rpc/extension/extension.proto
 	go build -o build/churro-extract cmd/churro-extract/churro-extract.go
+
 build-extract-image-local: compile-extract
 	docker build  -f ./images/Dockerfile.churro-extract.local -t docker.io/churrodata/churro-extract .
 build-extract-image:
 	docker buildx build --load --platform $(PLATFORMS) -f ./images/Dockerfile.churro-extract -t docker.io/churrodata/churro-extract .
+
 
 compile-extractsource:
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=require_unimplemented_servers=false:. --go-grpc_opt=paths=source_relative rpc/extractsource/extractsource.proto
 	go build -o build/churro-extractsource cmd/churro-extractsource/churro-extractsource.go
 
 build-extractsource-image-local: 
+
 	docker build -f ./images/Dockerfile.churro-extractsource -t docker.io/churrodata/churro-extractsource .
 
 build-extractsource-image: 
 	docker buildx build --load --platform $(PLATFORMS) -f ./images/Dockerfile.churro-extractsource -t docker.io/churrodata/churro-extractsource .
+
 
 compile-ctl:
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=require_unimplemented_servers=false:. --go-grpc_opt=paths=source_relative rpc/ctl/ctl.proto
@@ -179,13 +179,21 @@ build-ctl-image-local:
 build-ctl-image: 
 	docker buildx build --load --platform $(PLATFORMS) -f ./images/Dockerfile.churro-ctl -t docker.io/churrodata/churro-ctl .
 
+
+build-sftp-image-local: 
+	docker build -f ./images/Dockerfile.churro-sftp -t docker.io/churrodata/churro-sftp:latest .
 build-sftp-image: 
+
 	docker buildx build --load --platform $(PLATFORMS) -f ./images/Dockerfile.churro-sftp -t docker.io/churrodata/churro-sftp .
+
 
 compile-operator:
 	go build -o build/churro-operator cmd/churro-operator/churro-operator.go
+build-operator-image-local: 
+	docker build -f ./images/Dockerfile.churro-operator -t docker.io/churrodata/churro-operator:latest .
 build-operator-image: 
 	docker buildx build --load --platform $(PLATFORMS) -f ./images/Dockerfile.churro-operator -t docker.io/churrodata/churro-operator .
+
 
 port-forward-httppost:
 	kubectl -n $(PIPELINE) port-forward svc/my-httppost-files --address `hostname --ip-address` 10000:10000 
@@ -206,7 +214,9 @@ port-forward-ui-db:
 
 compile: compile-operator compile-ctl compile-extractsource compile-extract
 
-all: build-sftp-image build-extract-image build-extractsource-image build-ctl-image build-operator-image build-ui-image
+all: build-sftp-image-local build-extract-image-local build-extractsource-image-local build-ctl-image-local build-operator-image-local build-ui-image-local
+
+release: build-sftp-image build-extract-image build-extractsource-image build-ctl-image build-operator-image build-ui-image
 
 pipeline-certs:
 	$(BUILDDIR)/gen-certs.sh certs $(PIPELINE)
