@@ -160,3 +160,51 @@ churro can continually process data from a JSON API and store it in the pipeline
 
 This example causes the SpaceX feed to be polled every hour based on the *cronexpression*.  There are 3 extract rules defined:  shipname, latitude, longitude.  The extracted values
 are stored in the *mystarlinktable* database table in the pipeline's backend database.
+
+## http POST Messages
+An example of an extract source for an Excel file would look like the following:
+```yaml
+    extractsources:
+    - cronexpression: '@every 1h'
+      encoding: urlencoded
+      id: c591rb1jiqcs73edkbvg
+      name: my-httppost-files
+      path: https://my-httppost-files.pipeline1.cluster.svc.local:10000/extractsourcepush
+      port: 10000
+      scheme: httppost
+      servicetype: ClusterIP
+      tablename: myhttpposttable
+      transport: https
+```
+
+With http POST messages, you have an extract source that runs when you start
+it and you can also stop it at anytime you want as well.  The http POST
+extract service waits for http POST messages to receive essentially.   So,
+any device that can perform an http POST can send messages to a churro
+pipeline.
+
+In the above example, we specify that we want a service to write
+http POST messages into a table called *myhttpposttable*.  The http
+POST messages are encoded using *urlencoded* values.  You can also
+specify an encoding of *json* if you expect JSON messages to be
+posted.
+
+Message producers would post to the url at *https://my-httppost-files.pipeline1.cluster.svc.local:10000/extractsourcepush*.  A Service is built for 
+http POST extract sources that allow you to specify a ClusterIP or a
+LoadBalancer service type.
+
+You can test out an extract source like this using curl commands like
+the following:
+
+```
+curl -d "firstname=david" -X POST https://192.168.0.120:10000/extractsourcepost
+curl -d '{"login":"my_login","password":"my_password"}' -H 'Content-Type: application/json' -X POST http://192.168.0.120:10000/extractsourcepost
+```
+
+You can also specify an extract source *transport* value of either *http* or *https*.  In the case of specifying *https*, the extract source will create
+a TLS connection and use the *service.crt* and *service.key* keys that
+are mounted by churro into the extract source Pod.
+
+Note that for *json* encoded messages, if you do not specify any extract
+rules, the entire JSON message will be stored within a *jsonb* column type
+in the back-end database.
