@@ -60,7 +60,7 @@ func (s *Server) ExtractXLS(ctx context.Context) (err error) {
 		return err
 	}
 
-	xlsStruct := extractapi.XLSFormat{
+	xlsStruct := extractapi.GenericFormat{
 		Path:         s.FileName,
 		Dataprov:     dp.ID,
 		PipelineName: s.Pi.Name,

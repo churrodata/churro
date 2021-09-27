@@ -66,7 +66,7 @@ func (s *Server) ExtractJSONPath(ctx context.Context) (err error) {
 		return err
 	}
 
-	jsonStruct := extractapi.JsonPathFormat{
+	jsonStruct := extractapi.GenericFormat{
 		Path:         dp.Path,
 		Dataprov:     dp.ID,
 		PipelineName: s.Pi.Name,

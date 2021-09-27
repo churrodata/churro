@@ -40,7 +40,7 @@ const DEFAULT_HTTPPOST_PORT = "10000"
 type httppostwrapper struct {
 	Encoding       string
 	RawJSONMessage bool
-	CSVStruct      extractapi.CSVFormat
+	CSVStruct      extractapi.GenericFormat
 	Server         *Server
 	DP             domain.DataProvenance
 }
@@ -102,7 +102,7 @@ func (s *Server) ExtractHTTPPost(ctx context.Context) (err error) {
 	}
 	*/
 
-	u.CSVStruct = extractapi.CSVFormat{
+	u.CSVStruct = extractapi.GenericFormat{
 		Path:      u.DP.Path,
 		Dataprov:  u.DP.ID,
 		Tablename: s.ExtractSource.Tablename,

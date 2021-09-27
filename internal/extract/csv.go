@@ -51,7 +51,7 @@ func (s *Server) ExtractCSV(ctx context.Context) (err error) {
 
 	r := csv.NewReader(csvfile)
 
-	csvStruct := extractapi.CSVFormat{
+	csvStruct := extractapi.GenericFormat{
 		Path:         s.FileName,
 		Dataprov:     dp.ID,
 		PipelineName: s.Pi.Name,

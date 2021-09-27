@@ -170,7 +170,7 @@ func getXMLRules(extractSource domain.ExtractSource) (rules []compiledXMLRule) {
 	return rules
 }
 
-func getXMLFormat(rules []compiledXMLRule, root *xmlpath.Node) (format extractapi.XMLFormat) {
+func getXMLFormat(rules []compiledXMLRule, root *xmlpath.Node) (format extractapi.GenericFormat) {
 
 	cols := make([][]string, 0)
 
