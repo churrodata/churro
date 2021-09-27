@@ -63,6 +63,10 @@ type ExtractSource struct {
 	Skipheaders    int    `json:"skipheaders"`
 	Multiline      bool   `json:"multiline"`
 	Sheetname      string `json:"sheetname"`
+	Port           int    `json:"port"`
+	Encoding       string `json:"encoding"`
+	Transport      string `json:"transport"`
+	Servicetype    string `json:"servicetype"`
 	// Initialized is calculated, not persisted
 	Initialized  bool                   `json:"initialized"`
 	Running      bool                   `json:"running"`

@@ -39,6 +39,8 @@ func (s *Server) process(jp domain.JobProfile, xyz db.ChurroDatabase, database s
 		s.processJSONPath(jp, xyz, database, elem)
 	case extractapi.JSONScheme:
 		s.processJSON(jp, xyz, database, elem)
+	case extractapi.HTTPPostScheme:
+		s.processHTTPPost(jp, xyz, database, elem)
 	default:
 		log.Error().Stack().Msg("invalid scheme found in process " + s.SchemeValue)
 	}
@@ -49,7 +51,7 @@ func (s *Server) process(jp domain.JobProfile, xyz db.ChurroDatabase, database s
 func (s *Server) processCSV(jp domain.JobProfile, churroDB db.ChurroDatabase, database string, elem extractapi.LoaderMessage) {
 
 	//unmarshal elem metadata into CSV message
-	var csvMsg extractapi.CSVFormat
+	var csvMsg extractapi.GenericFormat
 	err := json.Unmarshal(elem.Metadata, &csvMsg)
 	if err != nil {
 		log.Error().Stack().Err(err).Msg("error in unmarshal")
@@ -79,7 +81,8 @@ func (s *Server) processCSV(jp domain.JobProfile, churroDB db.ChurroDatabase, da
 func (s *Server) processJSON(jp domain.JobProfile, churroDB db.ChurroDatabase, pipelineName string, elem extractapi.LoaderMessage) {
 	colNames := []string{"metadata"}
 	cols := []interface{}{string(elem.Metadata)}
-	err := churroDB.GetInsertStatement(extractapi.JSONScheme, pipelineName, s.TableName, colNames, cols, elem.Key)
+	log.Info().Msg("table name here in processJSON " + s.ExtractSource.Tablename)
+	err := churroDB.GetInsertStatement(extractapi.JSONScheme, pipelineName, s.ExtractSource.Tablename, colNames, cols, elem.Key)
 	if err != nil {
 		return
 	}
@@ -97,7 +100,7 @@ func (s *Server) startMetrics() {
 func (s *Server) processXML(jp domain.JobProfile, churroDB db.ChurroDatabase, database string, elem extractapi.LoaderMessage) {
 
 	//unmarshal elem metadata into XML message
-	var xmlMsg extractapi.XMLFormat
+	var xmlMsg extractapi.GenericFormat
 	err := json.Unmarshal(elem.Metadata, &xmlMsg)
 	if err != nil {
 		log.Error().Stack().Err(err).Msg("error in processXML")
@@ -129,7 +132,7 @@ func (s *Server) processXML(jp domain.JobProfile, churroDB db.ChurroDatabase, da
 func (s *Server) processFinnhubStocks(jp domain.JobProfile, churroDB db.ChurroDatabase, database string, elem extractapi.LoaderMessage) {
 
 	//unmarshal elem metadata into CSV message
-	var csvMsg extractapi.CSVFormat
+	var csvMsg extractapi.GenericFormat
 	err := json.Unmarshal(elem.Metadata, &csvMsg)
 	if err != nil {
 		log.Error().Stack().Err(err).Msg("error on csv unmarshal")
@@ -159,7 +162,7 @@ func (s *Server) processFinnhubStocks(jp domain.JobProfile, churroDB db.ChurroDa
 func (s *Server) processXLSX(jp domain.JobProfile, churroDB db.ChurroDatabase, database string, elem extractapi.LoaderMessage) {
 
 	//unmarshal elem metadata into XLS message
-	var xlsMsg extractapi.XLSFormat
+	var xlsMsg extractapi.GenericFormat
 	err := json.Unmarshal(elem.Metadata, &xlsMsg)
 	if err != nil {
 		log.Error().Stack().Err(err).Msg("error in xls unmarshal")
@@ -189,7 +192,7 @@ func (s *Server) processXLSX(jp domain.JobProfile, churroDB db.ChurroDatabase, d
 func (s *Server) processJSONPath(jp domain.JobProfile, churroDB db.ChurroDatabase, database string, elem extractapi.LoaderMessage) {
 
 	//unmarshal into JsonPathMessage
-	var jsonPathMsg extractapi.JsonPathFormat
+	var jsonPathMsg extractapi.GenericFormat
 	err := json.Unmarshal(elem.Metadata, &jsonPathMsg)
 	if err != nil {
 		log.Error().Stack().Err(err).Msg("error in jsonpath unmarshal")
@@ -274,4 +277,34 @@ func (s *Server) processAPI(jp domain.JobProfile, churroDB db.ChurroDatabase, pi
 		return
 	}
 
+}
+
+func (s *Server) processHTTPPost(jp domain.JobProfile, churroDB db.ChurroDatabase, database string, elem extractapi.LoaderMessage) {
+
+	//unmarshal elem metadata into CSV message
+	var csvMsg extractapi.GenericFormat
+	err := json.Unmarshal(elem.Metadata, &csvMsg)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("error in unmarshal")
+		return
+	}
+
+	err = churroDB.GetBulkInsertStatement(extractapi.HTTPPostScheme, database, csvMsg.Tablename, csvMsg.ColumnNames, csvMsg.Records, csvMsg.ColumnTypes)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("error in bulk insert ")
+		return
+	}
+
+	t := stats.PipelineStats{
+		DataprovID: csvMsg.Dataprov,
+		Pipeline:   csvMsg.PipelineName,
+		FileName:   csvMsg.Path,
+		RecordsIn:  int64(len(csvMsg.Records)),
+	}
+
+	err = churroDB.UpdatePipelineStats(t)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("error in stats update ")
+		return
+	}
 }

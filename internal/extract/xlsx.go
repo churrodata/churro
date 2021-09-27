@@ -22,7 +22,6 @@ import (
 	"github.com/xuri/excelize/v2"
 
 	extractapi "github.com/churrodata/churro/api/extract"
-	"github.com/churrodata/churro/internal/dataprov"
 	"github.com/churrodata/churro/internal/db"
 	"github.com/churrodata/churro/internal/domain"
 	"github.com/churrodata/churro/internal/transform"
@@ -39,20 +38,6 @@ func (s *Server) ExtractXLS(ctx context.Context) (err error) {
 		return err
 	}
 
-	//sheetName := "Sheet1"
-	//sheetName := s.ExtractSource.Sheetname
-
-	dp := domain.DataProvenance{
-		Name: s.FileName,
-		Path: s.FileName,
-	}
-	err = dataprov.Register(&dp, s.Pi, s.DBCreds)
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("can not register data prov")
-		os.Exit(1)
-	}
-	log.Info().Msg("dp info name " + dp.Name + " path " + dp.Path)
-
 	var rows [][]string
 	rows, err = xlsxFile.GetRows(s.ExtractSource.Sheetname)
 	if err != nil {
@@ -60,9 +45,9 @@ func (s *Server) ExtractXLS(ctx context.Context) (err error) {
 		return err
 	}
 
-	xlsStruct := extractapi.XLSFormat{
+	xlsStruct := extractapi.GenericFormat{
 		Path:         s.FileName,
-		Dataprov:     dp.ID,
+		Dataprov:     s.DP.ID,
 		PipelineName: s.Pi.Name,
 		Columns:      getColumns(s.ExtractSource),
 	}
@@ -96,7 +81,7 @@ func (s *Server) ExtractXLS(ctx context.Context) (err error) {
 		ID:               os.Getenv("CHURRO_EXTRACTLOG"),
 		JobName:          os.Getenv("POD_NAME"),
 		StartDate:        time.Now().Format("2006-01-02 15:04:05"),
-		DataProvenanceID: dp.ID,
+		DataProvenanceID: s.DP.ID,
 		FileName:         s.FileName,
 		RecordsLoaded:    0,
 	}
@@ -120,15 +105,6 @@ func (s *Server) ExtractXLS(ctx context.Context) (err error) {
 		// process the xls header which we expect to be there
 		if recordsRead <= s.ExtractSource.Skipheaders {
 			log.Info().Msg(fmt.Sprintf("skipping header %d", recordsRead))
-			/**
-
-			firstRow = false
-			err = s.tableCheck(xlsStruct.ColumnNames, xlsStruct.ColumnTypes)
-			if err != nil {
-				return err
-			}
-			xlsStruct.Tablename = s.TableName
-			*/
 		} else {
 
 			r := getXLSRow(record, xlsStruct.Columns)

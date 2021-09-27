@@ -1,0 +1,7 @@
+FROM fedora:latest
+
+# Copy our static executable
+COPY build/churro-extract /usr/local/bin
+
+# Run the churro-extract binary.
+ENTRYPOINT ["/usr/local/bin/churro-extract"]

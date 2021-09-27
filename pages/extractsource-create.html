@@ -5,22 +5,35 @@
     </head>
         <style type='text/css'>
             .wfiedls{
-                dipslay: none;
+                display: none;
             }
             .wfiedls0{
-                dipslay: none;
+                display: none;
             }
             .wfiedls2{
-                dipslay: none;
+                display: none;
             }
             .wfiedls3{
-                dipslay: none;
+                display: none;
             }
             .wfiedls4{
-                dipslay: none;
+                display: none;
+            }
+            .wfiedls5{
+                display: none;
             }
         </style>
         <script type='text/javascript'>
+            function updatepath(elem) {
+                var scheme1 = document.getElementById("extractsourcescheme");
+                if( scheme1.value == "httppost" ) {
+                  var wname = document.getElementById("extractsourcename");
+                  var wtransport = document.getElementById("transport");
+                  var wpath = document.getElementById("extractsourcepath");
+                  var wport = document.getElementById("port");
+                  wpath.value = wtransport.value + "://" + wname.value + ".{{.PipelineName}}.cluster.svc.local:" + wport.value + "/extractsourcepush";
+                }
+            }
             function check(elem) {
                 var scheme1 = document.getElementById("extractsourcescheme");
                 var wname = document.getElementById("extractsourcename");
@@ -28,13 +41,9 @@
                 var wpath = document.getElementById("extractsourcepath");
                 wpath.value = "/churro/" + scheme1.value + "files";
                 var wregex = document.getElementById("extractsourceregex");
-                var wskipdiv = document.getElementById("skipheadersdiv");
-                var wskip = document.getElementById("skipheaders");
-                var wskiplabel = document.getElementById("skipheaderslabel");
-                var wcrondiv = document.getElementById("crondiv");
-                var wcron = document.getElementById("cronexpression");
-                var wcronlabel = document.getElementById("cronexpressionlabel");
-                wregex.value = "[a-z,0-9].(" + scheme1.value + ")$";
+                var wtransport = document.getElementById("transport");
+                var wport = document.getElementById("port");
+                wregex.value = "[a-z,0-9].(" + scheme1.value + ")\$";
                 switch(scheme1.value) {
                   case "api":
                     wpath.value = "https://someurl";
@@ -44,6 +53,7 @@
                     $(".wfiedls2").hide();
                     $(".wfiedls3").hide();
                     $(".wfiedls4").hide();
+                    $(".wfiedls5").hide();
                     break;
                   case "csv":
                     $(".wfiedls").hide();
@@ -51,6 +61,7 @@
                     $(".wfiedls2").show();
                     $(".wfiedls3").hide();
                     $(".wfiedls4").hide();
+                    $(".wfiedls5").hide();
                     break;
                   case "xlsx":
                     $(".wfiedls").hide();
@@ -58,6 +69,7 @@
                     $(".wfiedls2").show();
                     $(".wfiedls3").hide();
                     $(".wfiedls4").show();
+                    $(".wfiedls5").hide();
                     break;
                   case "json":
                     $(".wfiedls").hide();
@@ -65,6 +77,7 @@
                     $(".wfiedls2").hide();
                     $(".wfiedls3").show();
                     $(".wfiedls4").hide();
+                    $(".wfiedls5").hide();
                     break;
                   case "jsonpath":
                     $(".wfiedls").hide();
@@ -72,6 +85,7 @@
                     $(".wfiedls2").hide();
                     $(".wfiedls3").show();
                     $(".wfiedls4").hide();
+                    $(".wfiedls5").hide();
                     break;
                   case "xml":
                     $(".wfiedls").hide();
@@ -79,6 +93,16 @@
                     $(".wfiedls2").hide();
                     $(".wfiedls3").show();
                     $(".wfiedls4").hide();
+                    $(".wfiedls5").hide();
+                    break;
+                  case "httppost":
+                    wpath.value = wtransport.value + "://" + wname.value + ".{{.PipelineName}}.cluster.svc.local:" + wport.value + "/extractsourcepush";
+                    $(".wfiedls").hide();
+                    $(".wfiedls0").hide();
+                    $(".wfiedls2").hide();
+                    $(".wfiedls3").hide();
+                    $(".wfiedls4").hide();
+                    $(".wfiedls5").show();
                     break;
                 }
                 var wtname = document.getElementById("extractsourcetablename");
@@ -97,7 +121,7 @@
 
         <h3>Extract Source</h3>
         <form action="/pipelines/{{.PipelineID}}/extractsource" method="post">
-            <div class="form-group row">
+            <div class="form-group">
                 <label for="extractsourcescheme" class="col-sm-2 col-form-label">Scheme</label>
                 <div class="col-sm-4">
                     <select onChange="check(this);" class="form-control" id="extractsourcescheme" name="extractsourcescheme" data-toggle="tooltip" title="type of data to process">
@@ -107,56 +131,89 @@
                         <option>json</option>
                         <option>jsonpath</option>
                         <option>api</option>
+                        <option>httppost</option>
                     </select>
                 </div>
             </div>
-            <div class="form-group row">
+            <div class="form-group">
                 <label for="extractsourcename" class="col-sm-2 col-form-label">Name</label>
                 <div class="col-sm-4">
-                    <input type="text" class="form-control" id="extractsourcename" name="extractsourcename" value="my-csv-files" data-toggle="tooltip" title="short name for this extract source , your choice">
+                    <input type="text" onChange="updatepath(this);" class="form-control" id="extractsourcename" name="extractsourcename" value="my-csv-files" data-toggle="tooltip" title="short name for this extract source , your choice">
                 </div>
             </div>
-            <div class="form-group row">
+            <div class="form-group">
                 <label for="extractsourcepath" class="col-sm-2 col-form-label">Path</label>
                 <div class="col-sm-4">
                     <input type="text" class="form-control" id="extractsourcepath" name="extractsourcepath" value="/churro/csvfiles" data-toggle="tooltip" title="the file system path to be watched">
                 </div>
             </div>
-            <div class="form-group row wfiedls0">
+            <div class="form-group wfiedls0">
                 <label for="extractsourceregex" class="col-sm-2 col-form-label">Regex</label>
                 <div class="col-sm-4">
                     <input type="text" class="form-control" id="extractsourceregex" name="extractsourceregex" value="[a-z,0-9].(csv)$" data-toggle="tooltip" title="a regex pattern for this extract source file type">
                 </div>
             </div>
-            <div class="form-group row">
+            <div class="form-group">
                 <label for="extractsourcetablename" class="col-sm-2 col-form-label">Table Name</label>
                 <div class="col-sm-4">
                     <input type="text" class="form-control" id="extractsourcetablename" name="extractsourcetablename" value="mycsvtable" data-toggle="tooltip" title="churro database table to be created for this extract source">
                 </div>
             </div>
-            <div class="form-group row wfiedls" id="crondiv" >
+            <div class="form-group wfiedls" id="crondiv" >
                 <label id="cronexpressionlabel" for="cronexpression" class="col-sm-2 col-form-label">Poll cron Expression</label>
                 <div class="col-sm-4">
                     <input type="text" class="form-control" id="cronexpression" name="cronexpression" value="@every 1h" data-toggle="tooltip" title="polling cronexpression">
                 </div>
             </div>
-            <div class="form-group row wfiedls2" id="skipheadersdiv">
+            <div class="form-group wfiedls2" id="skipheadersdiv">
                 <label id="skipheaderslabel" for="skipheaders" class="col-sm-2 col-form-label">Skip Headers</label>
                 <div class="col-sm-4">
                     <input type="number" min="0" max="10" class="form-control" id="skipheaders" name="skipheaders" value="0" data-toggle="tooltip" title="skip headers">
                 </div>
             </div>
-            <div class="form-group row wfiedls3" id="multilinediv">
+            <div class="form-group wfiedls3" id="multilinediv">
                 <label id="multilinelabel" for="multiline" class="col-sm-2 col-form-label">Multi-line</label>
                 <div class="col-sm-1">
-                    <input type="checkbox" class="form-control" id="multiline" name="multiline" value="true" data-toggle="tooltip" title="multiline content">
                     <select class="form-control" id="multiline" name="multiline" data-toggle="tooltip" title="multi-line content">
                         <option selected>false</option>
                         <option>true</option>
                     </select>
                 </div>
             </div>
-            <div class="form-group row wfiedls4" id="sheetnamediv">
+            <div class="form-group wfiedls5" id="portdiv">
+                <label id="portlabel" for="port" class="col-sm-2 col-form-label">Port</label>
+                <div class="col-sm-4">
+                    <input onChange="check(this);" type="number" min="10000" max="11000" class="form-control" id="port" name="port" value="10000" data-toggle="tooltip" title="port">
+                </div>
+            </div>
+            <div class="form-group wfiedls5" id="transportdiv">
+                <label id="transportlabel" for="transport" class="col-sm-2 col-form-label">Transport</label>
+                <div class="col-sm-4">
+                    <select onChange="check(this);" class="form-control" id="transport" name="transport" data-toggle="tooltip" title="either http or https">
+                        <option selected>http</option>
+                        <option>https</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group wfiedls5" id="servicetypediv">
+                <label id="servicetypelabel" for="servicetype" class="col-sm-2 col-form-label">Service Type</label>
+                <div class="col-sm-4">
+                    <select class="form-control" id="servicetype" name="servicetype" data-toggle="tooltip" title="either ClusterIP or LoadBalancer">
+                        <option selected>ClusterIP</option>
+                        <option>LoadBalancer</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group wfiedls5" id="encodingdiv">
+                <label id="encodinglabel" for="encoding" class="col-sm-2 col-form-label">Encoding</label>
+                <div class="col-sm-4">
+                  <select class="form-control" id="encoding" name="encoding" data-toggle="tooltip" title="encoding of POST body">
+                        <option selected>urlencoded</option>
+                        <option>json</option>
+                  </select>
+                </div>
+            </div>
+            <div class="form-group wfiedls4" id="sheetnamediv">
                 <label id="sheetnamelabel" for="sheetname" class="col-sm-2 col-form-label">Excel Sheet Name</label>
                 <div class="col-sm-4">
                     <input type="text" class="form-control" id="sheetname" name="sheetname" value="Sheet1" data-toggle="tooltip" title="spreadsheet sheet name">

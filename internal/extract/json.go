@@ -21,7 +21,6 @@ import (
 	"github.com/rs/zerolog/log"
 
 	extractapi "github.com/churrodata/churro/api/extract"
-	"github.com/churrodata/churro/internal/dataprov"
 	"github.com/churrodata/churro/internal/db"
 	"github.com/churrodata/churro/internal/domain"
 )
@@ -37,16 +36,6 @@ func (s *Server) ExtractJSON(ctx context.Context) (err error) {
 		return fmt.Errorf("could not open JSON file: %s %v", s.FileName, err)
 	}
 	defer jsonfile.Close()
-
-	dp := domain.DataProvenance{
-		Name: s.FileName,
-		Path: s.FileName,
-	}
-	err = dataprov.Register(&dp, s.Pi, s.DBCreds)
-	if err != nil {
-		return fmt.Errorf("can not register data prov %v %v", dp, err)
-	}
-	log.Debug().Msg(fmt.Sprintf("dp info %v", dp))
 
 	colNames := []string{"metadata"}
 	colTypes := []string{"jsonb"}
@@ -68,8 +57,8 @@ func (s *Server) ExtractJSON(ctx context.Context) (err error) {
 	}
 
 	jsonStruct := extractapi.IntermediateFormat{
-		Path:        dp.Path,
-		Dataprov:    dp.ID,
+		Path:        s.DP.Path,
+		Dataprov:    s.DP.ID,
 		ColumnNames: make([]string, 0),
 		ColumnTypes: make([]string, 0),
 		Messages:    make([]map[string]interface{}, 0),
@@ -101,7 +90,7 @@ func (s *Server) ExtractJSON(ctx context.Context) (err error) {
 		ID:               os.Getenv("CHURRO_EXTRACTLOG"),
 		JobName:          os.Getenv("POD_NAME"),
 		StartDate:        time.Now().Format("2006-01-02 15:04:05"),
-		DataProvenanceID: dp.ID,
+		DataProvenanceID: s.DP.ID,
 		FileName:         s.FileName,
 		RecordsLoaded:    1,
 	}

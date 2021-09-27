@@ -223,6 +223,14 @@ spec:
                       type: string
                     multiline:
                       type: string
+                    encoding:
+                      type: string
+                    transport:
+                      type: string
+                    port:
+                      type: integer
+                    servicetype:
+                      type: string
                   required:
                   - id
                   - name

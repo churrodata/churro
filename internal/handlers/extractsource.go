@@ -167,8 +167,8 @@ func (u *HandlerWrapper) PipelineExtractSource(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	log.Info().Msg(fmt.Sprintf("wdir.Initalized is %t\n", value.Initialized))
 	wdf.ExtractSource = value
+	log.Info().Msg(fmt.Sprintf("wdir.ExtractSource is %v\n", value))
 	wdf.PipelineName = x.Name
 	wdf.UserEmail = u.UserEmail
 
@@ -225,6 +225,13 @@ func (u *HandlerWrapper) CreateExtractSource(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	p, err := strconv.Atoi(r.Form["port"][0])
+	if err != nil {
+		a := u.Copy("port is blank or not a valid integer")
+		a.ShowCreateExtractSource(w, r)
+		return
+	}
+
 	d := domain.ExtractSource{
 		ID:             xid.New().String(),
 		Name:           r.Form["extractsourcename"][0],
@@ -236,6 +243,10 @@ func (u *HandlerWrapper) CreateExtractSource(w http.ResponseWriter, r *http.Requ
 		Multiline:      mV,
 		Sheetname:      r.Form["sheetname"][0],
 		Skipheaders:    v,
+		Port:           p,
+		Encoding:       r.Form["encoding"][0],
+		Transport:      r.Form["transport"][0],
+		Servicetype:    r.Form["servicetype"][0],
 		LastUpdated:    time.Now(),
 		ExtractRules:   make(map[string]domain.ExtractRule),
 	}
@@ -268,6 +279,16 @@ func (u *HandlerWrapper) CreateExtractSource(w http.ResponseWriter, r *http.Requ
 	}
 	if d.Skipheaders < 0 && (d.Scheme == extractapi.CSVScheme || d.Scheme == extractapi.XLSXScheme) {
 		a := u.Copy("skipheaders is required to be >= 0")
+		a.ShowCreateExtractSource(w, r)
+		return
+	}
+	if d.Servicetype == "" && (d.Scheme == extractapi.HTTPPostScheme) {
+		a := u.Copy("servicetype is required")
+		a.ShowCreateExtractSource(w, r)
+		return
+	}
+	if d.Transport == "" && (d.Scheme == extractapi.HTTPPostScheme) {
+		a := u.Copy("transport is required")
 		a.ShowCreateExtractSource(w, r)
 		return
 	}

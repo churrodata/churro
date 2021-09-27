@@ -59,11 +59,23 @@ func (s *Server) CreateExtractSource(ctx context.Context, request *pb.CreateExtr
 		return nil, status.Errorf(codes.InvalidArgument,
 			"extract source scheme is required")
 	}
-	if wdir.Regex == "" && wdir.Scheme != extractapi.APIScheme {
+	if wdir.Transport == "" && wdir.Scheme == extractapi.HTTPPostScheme {
+		return nil, status.Errorf(codes.InvalidArgument,
+			"extract source transport is required")
+	}
+	if wdir.Encoding == "" && wdir.Scheme == extractapi.HTTPPostScheme {
+		return nil, status.Errorf(codes.InvalidArgument,
+			"extract source encoding is required")
+	}
+	if wdir.Regex == "" && (wdir.Scheme != extractapi.APIScheme && wdir.Scheme != extractapi.HTTPPostScheme) {
 		return nil, status.Errorf(codes.InvalidArgument,
 			"extract source regex is required")
 	}
-	if wdir.Skipheaders <= 0 && (wdir.Scheme == extractapi.APIScheme || wdir.Scheme == extractapi.XLSXScheme) {
+	if wdir.Servicetype == "" && wdir.Scheme == extractapi.HTTPPostScheme {
+		return nil, status.Errorf(codes.InvalidArgument,
+			"extract source servicetype is required for httppost schemes")
+	}
+	if wdir.Skipheaders < 0 && (wdir.Scheme == extractapi.CSVScheme || wdir.Scheme == extractapi.XLSXScheme) {
 		return nil, status.Errorf(codes.InvalidArgument,
 			"extract source skipheaders is required to be >= 0")
 	}
@@ -118,6 +130,10 @@ func (s *Server) CreateExtractSource(ctx context.Context, request *pb.CreateExtr
 		Skipheaders:    wdir.Skipheaders,
 		Sheetname:      wdir.Sheetname,
 		Multiline:      strconv.FormatBool(wdir.Multiline),
+		Encoding:       wdir.Encoding,
+		Transport:      wdir.Transport,
+		Port:           wdir.Port,
+		Servicetype:    wdir.Servicetype,
 	}
 
 	pipelineToUpdate.Spec.Extractsources = append(pipelineToUpdate.Spec.Extractsources, esrc)
@@ -228,6 +244,10 @@ func (s *Server) GetExtractSource(ctx context.Context, request *pb.GetExtractSou
 			wdir.Scheme = c.Scheme
 			wdir.Regex = c.Regex
 			wdir.Tablename = c.Tablename
+			wdir.Port = c.Port
+			wdir.Encoding = c.Encoding
+			wdir.Transport = c.Transport
+			wdir.Servicetype = c.Servicetype
 			wdir.Cronexpression = pipelineToUpdate.Spec.Extractsources[i].Cronexpression
 			// get the extract rules for this extract source
 			wdir.ExtractRules = make(map[string]domain.ExtractRule)
@@ -262,7 +282,7 @@ func (s *Server) GetExtractSource(ctx context.Context, request *pb.GetExtractSou
 		}
 	}
 
-	if wdir.Scheme == extractapi.APIScheme {
+	if wdir.Scheme == extractapi.APIScheme || wdir.Scheme == extractapi.HTTPPostScheme {
 		var err error
 		wdir.Running, err = isRunning(s.Pi.Name, wdir.Name)
 		if err != nil {
@@ -315,6 +335,10 @@ func (s *Server) GetExtractSources(ctx context.Context, request *pb.GetExtractSo
 			Regex:          current.Regex,
 			Tablename:      current.Tablename,
 			Cronexpression: current.Cronexpression,
+			Port:           current.Port,
+			Encoding:       current.Encoding,
+			Transport:      current.Transport,
+			Servicetype:    current.Servicetype,
 		}
 		values = append(values, v)
 	}
@@ -397,7 +421,13 @@ func (s *Server) UpdateExtractSource(ctx context.Context, request *pb.UpdateExtr
 			pipelineToUpdate.Spec.Extractsources[i].Scheme = f.Scheme
 			pipelineToUpdate.Spec.Extractsources[i].Regex = f.Regex
 			pipelineToUpdate.Spec.Extractsources[i].Tablename = f.Tablename
+			pipelineToUpdate.Spec.Extractsources[i].Port = f.Port
+			pipelineToUpdate.Spec.Extractsources[i].Encoding = f.Encoding
+			pipelineToUpdate.Spec.Extractsources[i].Skipheaders = f.Skipheaders
+			pipelineToUpdate.Spec.Extractsources[i].Sheetname = f.Sheetname
+			pipelineToUpdate.Spec.Extractsources[i].Transport = f.Transport
 			pipelineToUpdate.Spec.Extractsources[i].Cronexpression = f.Cronexpression
+			pipelineToUpdate.Spec.Extractsources[i].Servicetype = f.Servicetype
 			_, err = pipelineClient.Update(pipelineToUpdate)
 			if err != nil {
 				log.Error().Stack().Err(err).Msg("some error")

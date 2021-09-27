@@ -121,6 +121,7 @@ func (s *Server) createExtractPod(client kubernetes.Interface, scheme string, fi
 	case extractapi.JSONScheme:
 	case extractapi.JSONPathScheme:
 	case extractapi.XLSXScheme:
+	case extractapi.HTTPPostScheme:
 		log.Debug().Msg("scheme used for extract job " + scheme)
 	default:
 		return fmt.Errorf("%s scheme is not recognized", scheme)
@@ -167,10 +168,10 @@ func getPodDefinition(filePath, tableName, scheme, suffix, namespace, imageName,
 			Name:      fmt.Sprintf("churro-extract-%s", suffix),
 			Namespace: namespace,
 			Labels: map[string]string{
-				"app":          "churro",
-				"service":      "churro-extract",
-				"watchdirname": extractSourceName,
-				"extractlogid": extractLogID,
+				"app":               "churro",
+				"service":           "churro-extract",
+				"extractsourcename": extractSourceName,
+				"extractlogid":      extractLogID,
 			},
 		},
 		Spec: v1.PodSpec{
@@ -334,6 +335,10 @@ func (s *Server) createExtractSources() {
 			log.Info().Msg("skipping dir setup for api scheme")
 			continue
 		}
+		if dir.Scheme == extractapi.HTTPPostScheme {
+			log.Info().Msg("skipping dir setup for httppost scheme")
+			continue
+		}
 
 		_, err := os.Stat(dir.Path)
 		if os.IsNotExist(err) {
@@ -386,6 +391,9 @@ func (s *Server) createExtractPodForNewFile(dirPath, filePath, regex string) err
 	for i := 0; i < len(pipelineToUpdate.Spec.Extractsources); i++ {
 		c := pipelineToUpdate.Spec.Extractsources[i]
 		if c.Scheme == extractapi.APIScheme {
+			continue
+		}
+		if c.Scheme == extractapi.HTTPPostScheme {
 			continue
 		}
 

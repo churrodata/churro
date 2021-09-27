@@ -9,7 +9,12 @@
 // licenses/APL.txt.
 package extract
 
-type JsonPathFormat struct {
+type GenericRow struct {
+	Key  int64         `json:"key"`
+	Cols []interface{} `json:"cols"`
+}
+
+type GenericFormat struct {
 	Path         string       `json:"path"`
 	Dataprov     string       `json:"dataprov"`
 	Tablename    string       `json:"tablename"`

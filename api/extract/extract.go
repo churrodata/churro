@@ -10,13 +10,18 @@
 package extract
 
 const (
-	XLSXScheme     = "xlsx"
-	CSVScheme      = "csv"
-	XMLScheme      = "xml"
-	JSONScheme     = "json"
-	JSONPathScheme = "jsonpath"
-	FinnHubScheme  = "finnhub-stocks"
-	APIScheme      = "api"
+	XLSXScheme      = "xlsx"
+	CSVScheme       = "csv"
+	XMLScheme       = "xml"
+	JSONScheme      = "json"
+	JSONPathScheme  = "jsonpath"
+	FinnHubScheme   = "finnhub-stocks"
+	APIScheme       = "api"
+	HTTPPostScheme  = "httppost"
+	COLTYPE_TEXT    = "TEXT"
+	COLTYPE_VARCHAR = "VARCHAR(32)"
+	COLTYPE_INT     = "INT"
+	COLTYPE_DECIMAL = "DECIMAL"
 )
 
 type LoaderMessage struct {
