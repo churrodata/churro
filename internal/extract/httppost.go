@@ -32,6 +32,7 @@ import (
 	"github.com/churrodata/churro/internal/dataprov"
 	"github.com/churrodata/churro/internal/db"
 	"github.com/churrodata/churro/internal/domain"
+	"github.com/churrodata/churro/internal/transform"
 	"github.com/churrodata/churro/pkg"
 )
 
@@ -387,6 +388,12 @@ func (u *httppostwrapper) getRowFromJSON(jsonMessage string) (someBytes []byte, 
 	row = append(row, thisrow)
 	u.CSVStruct.Records = row
 
+	err = transform.RunRules(u.CSVStruct.ColumnNames, u.CSVStruct.Records[0].Cols, u.Server.ExtractSource.ExtractRules, u.Server.TransformFunctions)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("error in RunRules ")
+	}
+	log.Info().Msg(fmt.Sprintf("after transform %+v", u.CSVStruct.Records[0].Cols))
+
 	someBytes, err = json.Marshal(u.CSVStruct)
 
 	return someBytes, nil
@@ -413,6 +420,13 @@ func (u *httppostwrapper) getRowFromForm(form url.Values) (someBytes []byte, err
 	row = append(row, thisrow)
 
 	u.CSVStruct.Records = row
+
+	err = transform.RunRules(u.CSVStruct.ColumnNames, u.CSVStruct.Records[0].Cols, u.Server.ExtractSource.ExtractRules, u.Server.TransformFunctions)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("error in RunRules ")
+	}
+	log.Info().Msg(fmt.Sprintf("after transform %+v", u.CSVStruct.Records[0].Cols))
+
 	someBytes, err = json.Marshal(u.CSVStruct)
 
 	return someBytes, nil

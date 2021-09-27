@@ -188,7 +188,7 @@ build-operator-image:
 	docker buildx build --load --platform $(PLATFORMS) -f ./images/Dockerfile.churro-operator -t docker.io/churrodata/churro-operator .
 
 port-forward-httppost:
-	kubectl -n $(PIPELINE) port-forward svc/my-httppost-files --address `hostname --ip-address` 10000:10000 
+	kubectl -n $(PIPELINE) port-forward svc/my-httppost-filesjson --address `hostname --ip-address` 10000:10000 
 port-forward:
 	kubectl -n churro port-forward svc/churro-ui --address `hostname --ip-address` 8080:8080 
 create-sftp-service:
