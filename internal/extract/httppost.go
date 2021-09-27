@@ -105,7 +105,7 @@ func (s *Server) ExtractHTTPPost(ctx context.Context) (err error) {
 	u.CSVStruct = extractapi.CSVFormat{
 		Path:      u.DP.Path,
 		Dataprov:  u.DP.ID,
-		Tablename: s.TableName,
+		Tablename: s.ExtractSource.Tablename,
 	}
 
 	u.CSVStruct.Columns = make([]extractapi.Column, 0)
@@ -190,16 +190,21 @@ func (u *httppostwrapper) ExtractSourceHTTPPost(w http.ResponseWriter, r *http.R
 	log.Info().Msg(fmt.Sprintf("columns %+v", u.CSVStruct.Columns))
 	fmt.Printf("http request %+v\n", r)
 	log.Info().Msg("u.Encoding here is " + u.Encoding)
+	msg := extractapi.LoaderMessage{}
 	var err error
+	var someBytes []byte
 
 	if u.Encoding == "urlencoded" {
 		r.ParseForm()
 
-		u.CSVStruct.Records, err = u.getRowFromForm(r.Form)
+		someBytes, err = u.getRowFromForm(r.Form)
 		if err != nil {
 			return
 		}
 		log.Info().Msg(fmt.Sprintf("records is %+v", u.CSVStruct.Records))
+		//TODO fix this duplication below
+		msg.DataFormat = extractapi.HTTPPostScheme
+		u.Server.SchemeValue = extractapi.HTTPPostScheme
 	} else {
 
 		b, err := ioutil.ReadAll(r.Body)
@@ -210,12 +215,19 @@ func (u *httppostwrapper) ExtractSourceHTTPPost(w http.ResponseWriter, r *http.R
 		log.Info().Msg(fmt.Sprintf("json request body is %s", string(b)))
 		// json case
 		if u.RawJSONMessage {
+			msg.DataFormat = extractapi.JSONScheme
+			u.Server.SchemeValue = extractapi.JSONScheme
 			//assume a single column of jsonb type is the desired action
-			log.Info().Msg("TODO raw json message to be processed")
-			return
+			someBytes, err = u.getRawRowFromJSON(b)
+			if err != nil {
+				return
+			}
+			log.Info().Msg("raw json message to be processed")
 		} else {
+			msg.DataFormat = extractapi.JSONPathScheme
+			u.Server.SchemeValue = extractapi.JSONPathScheme
 			// assume jsonpath columns to be extracted
-			u.CSVStruct.Records, err = u.getRowFromJSON(string(b))
+			someBytes, err = u.getRowFromJSON(string(b))
 			if err != nil {
 				return
 			}
@@ -232,10 +244,8 @@ func (u *httppostwrapper) ExtractSourceHTTPPost(w http.ResponseWriter, r *http.R
 	log.Info().Msg(fmt.Sprintf("after transform %+v", xmlStruct.Records[i].Cols))
 	*/
 
-	httppostBytes, _ := json.Marshal(u.CSVStruct)
-	msg := extractapi.LoaderMessage{}
-	msg.Metadata = httppostBytes
-	msg.DataFormat = "httppost"
+	//httppostBytes, _ := json.Marshal(u.CSVStruct)
+	msg.Metadata = someBytes
 	jobProfile := domain.JobProfile{
 		ID:               os.Getenv("CHURRO_EXTRACT"),
 		JobName:          os.Getenv("POD_NAME"),
@@ -335,12 +345,13 @@ func createService(pipelineName, extractSourceName string, port int32, serviceTy
 }
 
 // getRowFromJSON parses out a single row from a single JSON message
-func (u *httppostwrapper) getRowFromJSON(jsonMessage string) (row []extractapi.GenericRow, err error) {
+func (u *httppostwrapper) getRowFromJSON(jsonMessage string) (someBytes []byte, err error) {
 
+	row := make([]extractapi.GenericRow, 0)
 	obj, parseError := oj.ParseString(jsonMessage)
 	if parseError != nil {
 		log.Error().Err(parseError).Stack().Msg("jsonpath parse error")
-		return row, parseError
+		return someBytes, parseError
 	}
 
 	allCols := make([][]interface{}, 0)
@@ -350,7 +361,7 @@ func (u *httppostwrapper) getRowFromJSON(jsonMessage string) (row []extractapi.G
 		cols, err := getJSONPathColumns(obj, r.ColumnPath)
 		if err != nil {
 			log.Error().Stack().Err(err).Msg("some error")
-			return row, err
+			return someBytes, err
 		}
 		log.Info().Msg(fmt.Sprintf("jeff cols here is %+v", cols))
 		allCols = append(allCols, cols)
@@ -374,15 +385,19 @@ func (u *httppostwrapper) getRowFromJSON(jsonMessage string) (row []extractapi.G
 	//u.CSVStruct.Records = append(u.CSVStruct.Records, r)
 	//}
 	row = append(row, thisrow)
+	u.CSVStruct.Records = row
 
-	return row, nil
+	someBytes, err = json.Marshal(u.CSVStruct)
+
+	return someBytes, nil
 }
 
 // getRowFromForm parses out a single row from the http form
-func (u *httppostwrapper) getRowFromForm(form url.Values) (row []extractapi.GenericRow, err error) {
+func (u *httppostwrapper) getRowFromForm(form url.Values) (someBytes []byte, err error) {
 
 	//cols := make([][]string, 1)
 
+	row := make([]extractapi.GenericRow, 0)
 	thisrow := extractapi.GenericRow{}
 	thisrow.Key = time.Now().UnixNano()
 
@@ -397,5 +412,34 @@ func (u *httppostwrapper) getRowFromForm(form url.Values) (row []extractapi.Gene
 
 	row = append(row, thisrow)
 
-	return row, nil
+	u.CSVStruct.Records = row
+	someBytes, err = json.Marshal(u.CSVStruct)
+
+	return someBytes, nil
+}
+
+// getRawRowFromJSON parses out a single row from a single JSON message
+func (u *httppostwrapper) getRawRowFromJSON(byteValue []byte) (someBytes []byte, err error) {
+
+	var result map[string]interface{}
+	err = json.Unmarshal([]byte(byteValue), &result)
+	if err != nil {
+		return someBytes, fmt.Errorf("can not unmarshal json input file %v", err)
+	}
+
+	jsonStruct := extractapi.IntermediateFormat{
+		Path:        u.DP.Path,
+		Dataprov:    u.DP.ID,
+		ColumnNames: make([]string, 0),
+		ColumnTypes: make([]string, 0),
+		Messages:    make([]map[string]interface{}, 0),
+	}
+	jsonStruct.Messages = append(jsonStruct.Messages, result)
+
+	someBytes, err = json.Marshal(jsonStruct)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("error Marshaling raw json")
+	}
+
+	return someBytes, err
 }

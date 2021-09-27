@@ -81,7 +81,8 @@ func (s *Server) processCSV(jp domain.JobProfile, churroDB db.ChurroDatabase, da
 func (s *Server) processJSON(jp domain.JobProfile, churroDB db.ChurroDatabase, pipelineName string, elem extractapi.LoaderMessage) {
 	colNames := []string{"metadata"}
 	cols := []interface{}{string(elem.Metadata)}
-	err := churroDB.GetInsertStatement(extractapi.JSONScheme, pipelineName, s.TableName, colNames, cols, elem.Key)
+	log.Info().Msg("table name here in processJSON " + s.ExtractSource.Tablename)
+	err := churroDB.GetInsertStatement(extractapi.JSONScheme, pipelineName, s.ExtractSource.Tablename, colNames, cols, elem.Key)
 	if err != nil {
 		return
 	}
