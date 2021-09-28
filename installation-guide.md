@@ -1,11 +1,11 @@
 # [churro](https://churrodata.github.io/churro) Installation Guide
 
-- [Environment Requirements](Development Host Setup)
-- [Download churro](churro-download)
-- [Deploy the churro operator](Deploy churro)
-- [Deploy the churro Web Console](Deploy churro Web Console)
-- [Check the Install](Validate Installation)
-- [sftp Setup](sftp-setup)
+- [Development Host Setup](#development-host-setup)
+- [Download churro](#churro-download)
+- [Deploy the churro operator](#deploy-churro)
+- [Validate the Installation](#validate-installation)
+- [Check the Install](#Validate Installation)
+- [sftp Setup](#sftp-setup)
 
 ## Development Host Setup
 
@@ -146,7 +146,28 @@ cockroachdb-1                         1/1     Running   0          73s
 cockroachdb-2                         1/1     Running   0          41s
 ```
 
+#### Customize Templates
+
+The churro operator can read its templates from either a ConfigMap
+named *churro-templates* or from templates that are embedded in
+the churro-operator binary during at build time.
+
+If the ConfigMap is not present then all templates will be used based
+on the embedded templates within the *churro-operator* binary.  If
+the ConfigMap is found, then it takes precedent over the embedded
+version for a given template.  This scheme allows you to modify
+a single churro template and store it within a ConfigMap but use
+the embedded templates for all other templates.
+
+There is a Makefile target that demonstrates how to create
+a template ConfigMap:
+```
+make update-templates
+```
+
+
 #### Deploy churro operator
+The following Makefile target can be used to create the churro-operator Deployment:
 ```
 make deploy-churro-operator
 ```
@@ -201,25 +222,6 @@ cockroachdb-2                         1/1     Running   0          36m
 ```
 
 
-## Deploy churro Web Console
-In the current version of churro, only a single churro web console is deployed.  This web console serves up a HTML interface so users and admins can deploy and manage churro pipelines.
-
-### Deploy
-To deploy the web console application:
-```
-make deploy-churro-web-console
-```
-This will deploy a single Deployment with a single Pod.  By default the web console will 
-be configured to look for a cockroach database instance to write to.
-
-### Verify
-You can see the running web console by the following command:
-```
-kubectl -n churro get pod --selector=name=churro-ui
-NAME                         READY   STATUS    RESTARTS   AGE
-churro-ui-66f8df8687-h5fmv   1/1     Running   0          3m58s
-```
-
 Once the web console is running, it will create some database tables for churro to write
 state into, you can verify this by looking at the tables it creates:
 ```
@@ -236,7 +238,6 @@ Time: 30ms total (execution 22ms / network 9ms)
 root@:26257/defaultdb> quit
 ```
 
-### Port Forward
 By default, the web console has a ClusterIP Service type that requires you to
 port forward to gain access on your local development host.
 
