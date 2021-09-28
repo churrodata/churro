@@ -189,8 +189,8 @@ build-sftp-image:
 
 compile-operator:
 	go build -o build/churro-operator cmd/churro-operator/churro-operator.go
-build-operator-image-local: 
-	docker build -f ./images/Dockerfile.churro-operator -t docker.io/churrodata/churro-operator:latest .
+build-operator-image-local:  compile-operator
+	docker build -f ./images/Dockerfile.churro-operator.local -t docker.io/churrodata/churro-operator:latest .
 build-operator-image: 
 	docker buildx build --load --platform $(PLATFORMS) -f ./images/Dockerfile.churro-operator -t docker.io/churrodata/churro-operator .
 
