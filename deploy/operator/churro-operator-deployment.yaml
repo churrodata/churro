@@ -27,9 +27,6 @@ spec:
       - image: churrodata/churro-operator:latest
         imagePullPolicy: IfNotPresent
         name: churro-operator
-        volumeMounts:
-        - name: templatesdir
-          mountPath: /templates
         env:
         - name: WATCH_NAMESPACE
           value: ""
@@ -45,7 +42,3 @@ spec:
       serviceAccountName: churro-operator
       imagePullSecrets:
       - name: regcred
-      volumes:
-      - name: templatesdir
-        configMap:
-          name: churro-templates
