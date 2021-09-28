@@ -1,0 +1,26 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: memsql-studio
+  labels:
+    app: memsql-studio
+spec:
+  serviceAccountName: churro
+  containers:
+  - name: memsql-studio
+    image: churrodata/memsql-studio:latest
+    imagePullPolicy: IfNotPresent
+    # Keep a pod open indefinitely so kubectl exec can be used to get a shell to it
+    # and run cockroach client commands, such as cockroach sql, cockroach node status, etc.
+    ports:
+      - containerPort: 8080
+        name: http
+    command:
+    - singlestoredb-studio
+    volumeMounts:
+    - name: memsql-storage
+      mountPath: /var/lib/memsql-studio
+  volumes:
+  - name: memsql-storage
+    emptyDir: {}
+

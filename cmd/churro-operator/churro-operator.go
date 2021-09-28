@@ -11,12 +11,19 @@
 package main
 
 import (
+	"context"
+	"embed"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	v1 "k8s.io/api/core/v1"
+	kerrors "k8s.io/apimachinery/pkg/api/errors"
+
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/kubernetes"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -26,6 +33,7 @@ import (
 	"github.com/churrodata/churro/api/uiv1alpha1"
 	churrov1alpha1 "github.com/churrodata/churro/api/v1alpha1"
 	"github.com/churrodata/churro/internal/operator"
+	"github.com/churrodata/churro/pkg"
 	mysqlv1alpha1 "github.com/presslabs/mysql-operator/pkg/apis"
 	"github.com/rs/zerolog/log"
 	// +kubebuilder:scaffold:imports
@@ -35,6 +43,9 @@ var (
 	scheme   = runtime.NewScheme()
 	setupLog = ctrl.Log.WithName("setup")
 )
+
+//go:embed deploy/templates/*
+var embeddedTemplates embed.FS
 
 type ChurroOperatorFlags struct {
 	metricsAddr                   string
@@ -75,6 +86,8 @@ const (
 	uiSinglestoreCRDFileName         = "singlestore-crd.yaml"
 	uiSinglestoreOperatorFileName    = "singlestore-operator.yaml"
 	uiCockroachDBOperatorFileName    = "cockroachdb-operator.yaml"
+	configMapName                    = "churro-templates"
+	deployTemplatesDir               = "deploy/templates/"
 )
 
 func init() {
@@ -158,6 +171,7 @@ func processFlags() ChurroOperatorFlags {
 	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
 
 	setupLog := ctrl.Log.WithName("setup")
+	/**
 	var err error
 	path := fmt.Sprintf("%s%s%s", templatePath, "/", pvcFileName)
 	flags.pvcTemplate, err = ioutil.ReadFile(path)
@@ -165,84 +179,191 @@ func processFlags() ChurroOperatorFlags {
 		setupLog.Error(err, "unable to read "+path)
 		os.Exit(1)
 	}
+	*/
+	flags.pvcTemplate = getTemplate(pvcFileName)
+	setupLog.Info("found " + pvcFileName)
+
+	/**
 	path = fmt.Sprintf("%s%s%s", templatePath, "/", cockroachClientFileName)
 	flags.cockroachClientPodTemplate, err = ioutil.ReadFile(path)
 	if err != nil {
 		setupLog.Error(err, "unable to read "+path)
 		os.Exit(1)
 	}
+	*/
+	flags.cockroachClientPodTemplate = getTemplate(cockroachClientFileName)
+
+	/**
 	path = fmt.Sprintf("%s%s%s", templatePath, "/", singlestoreClientFileName)
 	flags.singlestoreClientPodTemplate, err = ioutil.ReadFile(path)
 	if err != nil {
 		setupLog.Error(err, "unable to read "+path)
 		os.Exit(1)
 	}
+	*/
+	flags.singlestoreClientPodTemplate = getTemplate(singlestoreClientFileName)
+	/**
+
 	path = fmt.Sprintf("%s%s%s", templatePath, "/", singlestoreClientServiceFileName)
 	flags.singlestoreClientSvcTemplate, err = ioutil.ReadFile(path)
 	if err != nil {
 		setupLog.Error(err, "unable to read "+path)
 		os.Exit(1)
 	}
+	*/
+	flags.singlestoreClientSvcTemplate = getTemplate(singlestoreClientServiceFileName)
+	/**
 	path = fmt.Sprintf("%s%s%s", templatePath, "/", extractSourceFileName)
 	flags.extractSourcePodTemplate, err = ioutil.ReadFile(path)
 	if err != nil {
 		setupLog.Error(err, "unable to read "+path)
 		os.Exit(1)
 	}
+	*/
+	flags.extractSourcePodTemplate = getTemplate(extractSourceFileName)
+	/**
 	path = fmt.Sprintf("%s%s%s", templatePath, "/", ctlFileName)
 	flags.ctlPodTemplate, err = ioutil.ReadFile(path)
 	if err != nil {
 		setupLog.Error(err, "unable to read "+path)
 		os.Exit(1)
 	}
+	*/
+	flags.ctlPodTemplate = getTemplate(ctlFileName)
+
+	/**
 	path = fmt.Sprintf("%s%s%s", templatePath, "/", statefulSetFileName)
 	flags.statefulsetTemplate, err = ioutil.ReadFile(path)
 	if err != nil {
 		setupLog.Error(err, "unable to read "+path)
 		os.Exit(1)
 	}
+	*/
+	flags.statefulsetTemplate = getTemplate(statefulSetFileName)
+
+	/**
 	path = fmt.Sprintf("%s%s%s", templatePath, "/", mysqlCRFileName)
 	flags.mysqlCRTemplate, err = ioutil.ReadFile(path)
 	if err != nil {
 		setupLog.Error(err, "unable to read "+path)
 		os.Exit(1)
 	}
+	*/
+	flags.mysqlCRTemplate = getTemplate(mysqlCRFileName)
+
+	/**
 	path = fmt.Sprintf("%s%s%s", templatePath, "/", mysqlSecretFileName)
 	flags.mysqlSecretTemplate, err = ioutil.ReadFile(path)
 	if err != nil {
 		setupLog.Error(err, "unable to read "+path)
 		os.Exit(1)
 	}
+	*/
+	flags.mysqlSecretTemplate = getTemplate(mysqlSecretFileName)
+
+	/**
 	path = fmt.Sprintf("%s%s%s", templatePath, "/", singlestoreCRFileName)
 	flags.singlestoreCRTemplate, err = ioutil.ReadFile(path)
 	if err != nil {
 		setupLog.Error(err, "unable to read "+path)
 		os.Exit(1)
 	}
+	*/
+	flags.singlestoreCRTemplate = getTemplate(singlestoreCRFileName)
+
+	/**
 	path = fmt.Sprintf("%s%s%s", templatePath, "/", uiDeploymentFileName)
 	flags.uiDeploymentTemplate, err = ioutil.ReadFile(path)
 	if err != nil {
 		setupLog.Error(err, "unable to read "+path)
 		os.Exit(1)
 	}
+	*/
+	flags.uiDeploymentTemplate = getTemplate(uiDeploymentFileName)
+
+	/**
 	path = fmt.Sprintf("%s%s%s", templatePath, "/", uiPVCFileName)
 	flags.uiPVCTemplate, err = ioutil.ReadFile(path)
 	if err != nil {
 		setupLog.Error(err, "unable to read "+path)
 		os.Exit(1)
 	}
+	*/
+	flags.uiPVCTemplate = getTemplate(uiPVCFileName)
+
+	/**
 	path = fmt.Sprintf("%s%s%s", templatePath, "/", uiSinglestoreOperatorFileName)
 	flags.uiSinglestoreOperatorTemplate, err = ioutil.ReadFile(path)
 	if err != nil {
 		setupLog.Error(err, "unable to read "+path)
 		os.Exit(1)
 	}
+	*/
+	flags.uiSinglestoreOperatorTemplate = getTemplate(uiSinglestoreOperatorFileName)
+
+	/**
 	path = fmt.Sprintf("%s%s%s", templatePath, "/", uiCockroachDBOperatorFileName)
 	flags.uiCockroachDBOperatorTemplate, err = ioutil.ReadFile(path)
 	if err != nil {
 		setupLog.Error(err, "unable to read "+path)
 		os.Exit(1)
 	}
+	*/
+	flags.uiCockroachDBOperatorTemplate = getTemplate(uiCockroachDBOperatorFileName)
 
 	return flags
+}
+
+//getTemplate returns a template either from the ConfigMap if present or
+// from the embedded data if the Configmap is not present, an empty
+// template will cause the program to exit abnormally
+func getTemplate(templateKey string) (templateBytes []byte) {
+
+	ns := os.Getenv("CHURRO_NAMESPACE")
+
+	// connect to the Kube API
+	clientset, _, err := pkg.GetKubeClient()
+	if err != nil {
+		os.Exit(2)
+	}
+
+	fmt.Printf("looking for template key [%s]\n", templateKey)
+	var thisMap *v1.ConfigMap
+	thisMap, err = getConfigMap(clientset, ns, configMapName)
+	if kerrors.IsNotFound(err) {
+		fmt.Printf("configMap not found\n")
+		data, err := embeddedTemplates.ReadFile(deployTemplatesDir + templateKey)
+		if err != nil {
+			os.Exit(2)
+		}
+		if len(data) == 0 {
+			os.Exit(2)
+		}
+		fmt.Printf("found embedded template %s\n", templateKey)
+		return data
+	} else if err != nil {
+		fmt.Print(err.Error())
+		os.Exit(2)
+	}
+	fmt.Printf("configmap found\n")
+	str := thisMap.Data[templateKey]
+	templateBytes = []byte(str)
+	if len(templateBytes) == 0 {
+		fmt.Printf("invalid template %s from ConfigMap length is 0", templateKey)
+		os.Exit(2)
+	}
+	fmt.Printf("found templateKey in ConfigMap! %s\n", templateBytes)
+	return templateBytes
+}
+
+// getConfigMap method
+func getConfigMap(clientset *kubernetes.Clientset, ns, configMapName string) (*v1.ConfigMap, error) {
+	configMap, err := clientset.CoreV1().ConfigMaps(ns).Get(context.TODO(), configMapName, metav1.GetOptions{})
+	if err != nil {
+		//fmt.Printf("Error occured while creating configmap %s: %s", configMapName, err.Error())
+		return nil, err
+	}
+
+	fmt.Printf("configMap %s is succesfully got", configMap.Name)
+	return configMap, nil
 }

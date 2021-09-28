@@ -1,6 +1,6 @@
 module github.com/churrodata/churro
 
-go 1.13
+go 1.16
 
 require (
 	aqwari.net/xml v0.0.0-20210331023308-d9421b293817
