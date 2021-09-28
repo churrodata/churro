@@ -321,9 +321,23 @@ func getTemplate(templateKey string) (templateBytes []byte) {
 
 	ns := os.Getenv("CHURRO_NAMESPACE")
 
+
+	// get the template from the embedded dir as a default
+	data, err := embeddedTemplates.ReadFile(deployTemplatesDir + templateKey)
+	if err != nil {
+		fmt.Printf("error here %s\n", err.Error())
+		os.Exit(2)
+	}
+	if len(data) == 0 {
+		fmt.Printf("error here 2 %s\n", err.Error())
+		os.Exit(2)
+	}
+
 	// connect to the Kube API
 	clientset, _, err := pkg.GetKubeClient()
 	if err != nil {
+		fmt.Printf("error here 3 %s\n", err.Error())
+
 		os.Exit(2)
 	}
 
@@ -331,26 +345,23 @@ func getTemplate(templateKey string) (templateBytes []byte) {
 	var thisMap *v1.ConfigMap
 	thisMap, err = getConfigMap(clientset, ns, configMapName)
 	if kerrors.IsNotFound(err) {
-		fmt.Printf("configMap not found\n")
-		data, err := embeddedTemplates.ReadFile(deployTemplatesDir + templateKey)
-		if err != nil {
-			os.Exit(2)
-		}
-		if len(data) == 0 {
-			os.Exit(2)
-		}
-		fmt.Printf("found embedded template %s\n", templateKey)
+
+		fmt.Printf("configMap not found, will use embedded %s\n", templateKey)
 		return data
 	} else if err != nil {
-		fmt.Print(err.Error())
+		fmt.Printf("error here 4 %s\n", err.Error())
+
 		os.Exit(2)
 	}
 	fmt.Printf("configmap found\n")
 	str := thisMap.Data[templateKey]
 	templateBytes = []byte(str)
 	if len(templateBytes) == 0 {
-		fmt.Printf("invalid template %s from ConfigMap length is 0", templateKey)
-		os.Exit(2)
+
+		fmt.Printf("invalid template %s from ConfigMap length is 0, will use embedded version instead", templateKey)
+		return data
+
+
 	}
 	fmt.Printf("found templateKey in ConfigMap! %s\n", templateBytes)
 	return templateBytes

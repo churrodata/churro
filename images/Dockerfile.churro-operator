@@ -1,6 +1,8 @@
 FROM golang:1.16 as builder
 ADD . /build
 ADD ./cmd/churro-operator/churro-operator.go /build
+ADD ./cmd/churro-operator/deploy/templates/* /build/deploy/templates/
+RUN ls /build/deploy/templates
 WORKDIR /build
 RUN CGO_ENABLED=0 GOOS=linux go build -o churro-operator
 
