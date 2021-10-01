@@ -4,7 +4,7 @@ DB_CERTS_DIR=certs/db
 BUILDDIR=./build
 PIPELINE=pipeline1
 CHURRO_NS=churro
-TAG=0.0.1
+TAG=0.0.2
 PLATFORMS="linux/amd64,linux/arm64"
 images=churro-ui churro-operator churro-sftp churro-ctl churro-extract churro-extractsource
 
@@ -144,7 +144,7 @@ compile-ui:
 build-ui-image-local:
 	docker build -f ./images/Dockerfile.churro-ui -t docker.io/churrodata/churro-ui .
 build-ui-image:
-	docker buildx build --load --platform $(PLATFORMS) -f ./images/Dockerfile.churro-ui -t docker.io/churrodata/churro-ui .
+	docker buildx build --push --platform $(PLATFORMS) -f ./images/Dockerfile.churro-ui -t docker.io/churrodata/churro-ui:$(TAG) .
 
 
 compile-extract:
@@ -155,7 +155,7 @@ compile-extract:
 build-extract-image-local: compile-extract
 	docker build  -f ./images/Dockerfile.churro-extract.local -t docker.io/churrodata/churro-extract .
 build-extract-image:
-	docker buildx build --load --platform $(PLATFORMS) -f ./images/Dockerfile.churro-extract -t docker.io/churrodata/churro-extract .
+	docker buildx build --push --platform $(PLATFORMS) -f ./images/Dockerfile.churro-extract -t docker.io/churrodata/churro-extract:$(TAG) .
 
 
 compile-extractsource:
@@ -167,7 +167,7 @@ build-extractsource-image-local:
 	docker build -f ./images/Dockerfile.churro-extractsource -t docker.io/churrodata/churro-extractsource .
 
 build-extractsource-image: 
-	docker buildx build --load --platform $(PLATFORMS) -f ./images/Dockerfile.churro-extractsource -t docker.io/churrodata/churro-extractsource .
+	docker buildx build --push --platform $(PLATFORMS) -f ./images/Dockerfile.churro-extractsource -t docker.io/churrodata/churro-extractsource:$(TAG) .
 
 
 compile-ctl:
@@ -177,14 +177,14 @@ compile-ctl:
 build-ctl-image-local: 
 	docker build -f ./images/Dockerfile.churro-ctl -t docker.io/churrodata/churro-ctl .
 build-ctl-image: 
-	docker buildx build --load --platform $(PLATFORMS) -f ./images/Dockerfile.churro-ctl -t docker.io/churrodata/churro-ctl .
+	docker buildx build --push --platform $(PLATFORMS) -f ./images/Dockerfile.churro-ctl -t docker.io/churrodata/churro-ctl:$(TAG) .
 
 
 build-sftp-image-local: 
 	docker build -f ./images/Dockerfile.churro-sftp -t docker.io/churrodata/churro-sftp:latest .
 build-sftp-image: 
 
-	docker buildx build --load --platform $(PLATFORMS) -f ./images/Dockerfile.churro-sftp -t docker.io/churrodata/churro-sftp .
+	docker buildx build --push --platform $(PLATFORMS) -f ./images/Dockerfile.churro-sftp -t docker.io/churrodata/churro-sftp:$(TAG) .
 
 
 compile-operator:
@@ -192,7 +192,7 @@ compile-operator:
 build-operator-image-local:  compile-operator
 	docker build -f ./images/Dockerfile.churro-operator.local -t docker.io/churrodata/churro-operator:latest .
 build-operator-image: 
-	docker buildx build --load --platform $(PLATFORMS) -f ./images/Dockerfile.churro-operator -t docker.io/churrodata/churro-operator .
+	docker buildx build --push --platform $(PLATFORMS) -f ./images/Dockerfile.churro-operator -t docker.io/churrodata/churro-operator:$(TAG) .
 
 
 port-forward-httppost:
