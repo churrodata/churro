@@ -25,6 +25,8 @@ func main() {
 
 	log.Info().Msg("mock web app")
 
+	//getCR()
+
 	// make sure the db cert path exists
 	dbCertPath := "/dbcerts"
 	_, err := os.Stat(dbCertPath)
@@ -208,3 +210,15 @@ func main() {
 	log.Info().Msg("listening on port " + port)
 	log.Fatal().Err(http.ListenAndServeTLS(":"+port, "https-server.crt", "https-server.key", r))
 }
+
+/**
+func getCR() {
+
+	result, err := pkg.GetChurroui()
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("error getting churroui")
+		return
+	}
+	log.Info().Msg(fmt.Sprintf("got ui CR %+v\n", result))
+}
+*/

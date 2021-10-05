@@ -32,7 +32,7 @@ func main() {
 	log.Logger = log.With().Caller().Logger()
 
 	log.Info().Msg("testdatabases")
-	dbTypeFlag := flag.String("dbtype", "mysql", "either mysql or cockroachdb")
+	dbTypeFlag := flag.String("dbtype", domain.DatabaseMysql, "either mysql, singlestore, or cockroachdb")
 
 	flag.Parse()
 
@@ -52,7 +52,7 @@ func main() {
 
 	var creds config.DBCredentials
 	var source v1alpha1.Source
-	if *dbTypeFlag == "mysql" {
+	if *dbTypeFlag == domain.DatabaseMysql {
 		creds = config.DBCredentials{
 			Username: "root",
 			Password: "not-so-secure",
@@ -64,7 +64,19 @@ func main() {
 			Username: "root",
 			Password: "not-so-secure",
 		}
-	} else if *dbTypeFlag == "cockroachdb" {
+	} else if *dbTypeFlag == domain.DatabaseSinglestore {
+		creds = config.DBCredentials{
+			Username: "admin",
+			Password: "securepass",
+		}
+		source = v1alpha1.Source{
+			Host:     "127.0.0.1",
+			Port:     3306,
+			Database: "memsql",
+			Username: "admin",
+			Password: "secretpass",
+		}
+	} else if *dbTypeFlag == domain.DatabaseCockroach {
 		creds = config.DBCredentials{
 			//Username: "root",
 			//Password: "not-so-secure",
@@ -121,6 +133,7 @@ func main() {
 	}
 
 	job := domain.JobProfile{
+		TableName:        "sometable",
 		ID:               xid.New().String(),
 		DataProvenanceID: xid.New().String(),
 		JobName:          xid.New().String(),

@@ -17,7 +17,7 @@ import (
 )
 
 func (d SinglestoreChurroDatabase) UpdateExtractSourceMetric(a domain.ExtractSourceMetric) error {
-	var UPDATE = "UPDATE churro.extractsourcemetric set value = ?, lastupdated = now() where extractsourceid = ? and name = ?"
+	var UPDATE = "UPDATE extractsourcemetric set value = ?, lastupdated = now() where extractsourceid = ? and name = ?"
 	log.Info().Msg(UPDATE)
 
 	stmt, err := d.Connection.Prepare(UPDATE)
@@ -52,12 +52,27 @@ func (d SinglestoreChurroDatabase) CreateExtractSourceMetric(a domain.ExtractSou
 }
 
 func (d SinglestoreChurroDatabase) GetExtractSourceMetrics(id string) (wdirs []domain.ExtractSourceMetric, err error) {
+	rows, err := d.Connection.Query(fmt.Sprintf("SELECT extractsourceid, name, value from extractsourcemetric where extractsourceid = '%s'", id))
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("some error")
+		return wdirs, err
+	}
+
+	for rows.Next() {
+		p := domain.ExtractSourceMetric{}
+		err = rows.Scan(&p.ExtractSourceID, &p.Name, &p.Value)
+		if err != nil {
+			log.Error().Stack().Err(err).Msg("some error")
+			return wdirs, err
+		}
+		wdirs = append(wdirs, p)
+	}
 
 	return wdirs, nil
 }
 
 func (d SinglestoreChurroDatabase) GetExtractSourceByName(name string) (a domain.ExtractSource, err error) {
-	row := d.Connection.QueryRow("SELECT id, cronexpression, tablename, path, scheme, regex, lastupdated FROM churro.extractsource where name=?", name)
+	row := d.Connection.QueryRow("SELECT id, cronexpression, tablename, path, scheme, regex, lastupdated FROM extractsource where name=?", name)
 	err = row.Scan(&a.ID, &a.Cronexpression, &a.Tablename, &a.Path, &a.Scheme, &a.Regex, &a.LastUpdated)
 	if err != nil {
 		log.Info().Msg("extractsource name was not found")

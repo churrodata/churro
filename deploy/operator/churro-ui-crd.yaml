@@ -42,6 +42,11 @@ spec:
                 type: string
               servicetype:
                 type: string
+              supporteddatabases:
+                description: supported databases
+                items:
+                  type: string
+                type: array
             required:
             - databasetype
             type: object

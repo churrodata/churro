@@ -554,9 +554,10 @@ func (u *HandlerWrapper) PipelineDownloadFile(w http.ResponseWriter, r *http.Req
 
 // ShowCreatePipelineForm ...
 type ShowCreatePipelineForm struct {
-	ErrorText      string
-	UserEmail      string
-	StorageClasses []string
+	ErrorText          string
+	UserEmail          string
+	StorageClasses     []string
+	SupportedDatabases []string
 }
 
 // ShowCreatePipeline ...
@@ -573,10 +574,17 @@ func (u *HandlerWrapper) ShowCreatePipeline(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	supportedDatabases, err := GetSupportedDatabases()
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		return
+	}
+
 	x := ShowCreatePipelineForm{
-		ErrorText:      u.ErrorText,
-		UserEmail:      u.UserEmail,
-		StorageClasses: names,
+		ErrorText:          u.ErrorText,
+		UserEmail:          u.UserEmail,
+		StorageClasses:     names,
+		SupportedDatabases: supportedDatabases,
 	}
 	err = tmpl.ExecuteTemplate(w, "layout", x)
 	if err != nil {

@@ -1,9 +1,31 @@
 
 
 # This is a functional test for testing the various database functions
-for cockroachdb and mysql.  You have to have a running cockroachdb
-and mysql instances in order to run this test against them.
+for cockroachdb, singlestore, and mysql.  You have to have a running cockroachdb, singlestore, and mysql instances in order to run this test against all of
+them.
 
+
+## Installing singlestore
+
+You install singlestore by running the Makefile target:
+```
+make deploy-singlestore-operator
+```
+This will deploy the singlestore CRD, operator, and create a CR
+in the churro namespace to spin up a singlestore database in the
+churro namespace.
+
+You will need to port-forward to the example database:
+```
+kubectl -n churro port-forward --address 127.0.0.1 svc/svc-memsql-cluster-ddl 3306:3306
+```
+
+In another terminal you can login in using the mysql client:
+```
+mysql -P 3306 -h127.0.0.1 -p -u admin
+```
+
+The user created is *admin*, the password is *secretpass*.
 
 ## We will install the mysql database as follows:
 
@@ -54,3 +76,7 @@ go run testdatabases.go -dbtype=cockroachdb
 or for testing mysql:
 
 go run testdatabases.go -dbtype=mysql
+
+or for testing singlestore:
+
+go run testdatabases.go -dbtype=singlestore

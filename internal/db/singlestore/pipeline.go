@@ -45,7 +45,7 @@ func (d SinglestoreChurroDatabase) CreatePipelineObjects(dbName, username string
 	}
 	log.Info().Msg(sqlStr)
 
-	sqlStr = fmt.Sprintf("CREATE TABLE if not exists %s.extractlog ( tablename varchar(32) not null, id varchar(32) PRIMARY KEY, dataprov_id varchar(32) not null, podname varchar(64) not null, poddate timestamp, detail text not null, lastupdated TIMESTAMP);", dbName)
+	sqlStr = fmt.Sprintf("CREATE TABLE if not exists %s.extractlog ( tablename varchar(32) not null, id varchar(32) PRIMARY KEY, dataprov_id varchar(32) not null, podname varchar(64) not null, poddate timestamp, records_loaded int not null, file_name varchar(64), lastupdated TIMESTAMP);", dbName)
 	stmt, err = d.Connection.Prepare(sqlStr)
 	if err != nil {
 		return err
@@ -239,12 +239,12 @@ func (d SinglestoreChurroDatabase) CreateUser(username, password string) error {
 }
 
 func (d SinglestoreChurroDatabase) CreateExtractLog(p domain.JobProfile) error {
-	insertStmt, err := d.Connection.Prepare("insert into extractlog(id, dataprov_id, podname, poddate, records_loaded, lastupdated) values(?,?,?,?,?,now())")
+	insertStmt, err := d.Connection.Prepare("insert into extractlog(file_name, tablename, id, dataprov_id, podname, poddate, records_loaded, lastupdated) values(?,?,?,?,?,?,?,now())")
 	if err != nil {
 		log.Error().Stack().Err(err)
 		return err
 	}
-	_, err = insertStmt.Exec(p.ID, p.DataProvenanceID, p.JobName, p.StartDate, p.RecordsLoaded)
+	_, err = insertStmt.Exec(p.FileName, p.TableName, p.ID, p.DataProvenanceID, p.JobName, p.StartDate, p.RecordsLoaded)
 	if err != nil {
 		log.Error().Stack().Err(err)
 		return err
@@ -253,7 +253,7 @@ func (d SinglestoreChurroDatabase) CreateExtractLog(p domain.JobProfile) error {
 	return nil
 }
 func (d SinglestoreChurroDatabase) UpdateExtractLog(p domain.JobProfile) error {
-	var UPDATE = fmt.Sprintf("UPDATE extractlog set (records_loaded, lastupdated) = (?, now()) where id = ?")
+	var UPDATE = fmt.Sprintf("UPDATE extractlog set records_loaded = ?, lastupdated = now() where id = ?")
 	stmt, err := d.Connection.Prepare(UPDATE)
 	if err != nil {
 		log.Error().Stack().Err(err)

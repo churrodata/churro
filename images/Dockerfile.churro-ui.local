@@ -1,0 +1,12 @@
+FROM fedora:latest
+
+# Copy our static executable
+COPY build/churro-ui /usr/local/bin
+RUN mkdir /pages
+COPY certs/ui/ /
+COPY pages/ /pages
+COPY static/ /static
+
+# Run the churro-operator binary.
+WORKDIR /
+ENTRYPOINT ["/usr/local/bin/churro-ui"]
