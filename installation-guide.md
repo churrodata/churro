@@ -205,6 +205,18 @@ spec:
 
 #### Create the churroui CR
 
+Note that you can specify which databases you want churro to support
+by editing the churro-ui.yaml Custom Resource as found in the
+following directory/file:
+```
+cmd/churro-operator/deploy/templates/churro-ui.yaml
+```
+This will only effect the user interface when a user wants to create
+a pipeline, it does not determine what database operators get installed.
+Database operators are installed manually by the churro administrator
+during installation.
+
+
 ```
 kubectl -n churro create -f deploy/operator/churro-ui-cr.yaml
 ```
