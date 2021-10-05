@@ -55,9 +55,9 @@
                 <label for="dbtype" class="col-sm-2 col-form-label">Database Backend</label>
                 <div class="col-sm-4">
                     <select class="form-control" id="dbtype" name="dbtype" data-toggle="tooltip" title="type of database backend to provision">
-                        <option>cockroachdb</option>
-                        <option>mysql</option>
-                        <option>singlestore</option>
+            {{ range .SupportedDatabases }}
+            <option>{{.}}</option>
+            {{ end }}
                     </select>
                     <small id="dbtypeHelp" class="form-text text-muted">Database backend type.</small>
                 </div>

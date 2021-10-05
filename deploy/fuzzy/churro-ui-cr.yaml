@@ -7,7 +7,10 @@ metadata:
 status:
   active: "true"
   standby:
-    - "AAPL"
-    - "AMZN"
+    - "A"
+    - "A"
 spec:
   databasetype: cockroachdb
+  supporteddatabases:
+    - "cockroachdb"
+    - "singlestore"

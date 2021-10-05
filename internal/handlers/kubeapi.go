@@ -12,8 +12,10 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/churrodata/churro/pkg"
+	"github.com/rs/zerolog/log"
 	storagev1 "k8s.io/api/storage/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -35,4 +37,15 @@ func GetStorageClasses() (names []string, err error) {
 	}
 
 	return names, err
+}
+
+func GetSupportedDatabases() (names []string, err error) {
+	result, err := pkg.GetChurroui()
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("error getting churroui")
+		return names, err
+	}
+	log.Info().Msg(fmt.Sprintf("got ui CR %+v\n", result))
+
+	return result.Spec.Supporteddatabases, nil
 }

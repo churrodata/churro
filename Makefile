@@ -141,8 +141,8 @@ build-memsql-studio:
 
 compile-ui:
 	go build -o build/churro-ui ui/main.go
-build-ui-image-local:
-	docker build -f ./images/Dockerfile.churro-ui -t docker.io/churrodata/churro-ui .
+build-ui-image-local: compile-ui
+	docker build -f ./images/Dockerfile.churro-ui.local -t docker.io/churrodata/churro-ui .
 build-ui-image:
 	docker buildx build --push --platform $(PLATFORMS) -f ./images/Dockerfile.churro-ui -t docker.io/churrodata/churro-ui:$(TAG) .
 

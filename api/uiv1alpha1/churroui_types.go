@@ -5,11 +5,12 @@ import (
 )
 
 type ChurrouiSpec struct {
-	DatabaseType     string `json:"databasetype"`
-	ServiceType      string `json:"servicetype"`
-	StorageClassName string `json:"storageclassname"`
-	StorageSize      string `json:"storagesize"`
-	AccessMode       string `json:"accessmode"`
+	DatabaseType       string   `json:"databasetype"`
+	ServiceType        string   `json:"servicetype"`
+	StorageClassName   string   `json:"storageclassname"`
+	StorageSize        string   `json:"storagesize"`
+	AccessMode         string   `json:"accessmode"`
+	Supporteddatabases []string `json:"supporteddatabases"`
 }
 
 type ChurrouiStatus struct {

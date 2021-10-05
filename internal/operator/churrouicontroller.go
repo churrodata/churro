@@ -429,6 +429,13 @@ func (r ChurrouiReconciler) processClusterRoles(uiInstance uiv1alpha1.Churroui) 
 		  - update
 		  - watch
 		- apiGroups:
+		  - churro.project.io
+		  resources:
+		  - churrouis
+		  verbs:
+		  - list
+		  - get
+		- apiGroups:
 		  - ''
 		  resources:
 		  - pods
@@ -446,6 +453,13 @@ func (r ChurrouiReconciler) processClusterRoles(uiInstance uiv1alpha1.Churroui) 
 			Resources: []string{"pipelines"},
 		}
 		churroRole.Rules = append(churroRole.Rules, policyRule)
+
+		policyRule2 := rbacv1.PolicyRule{
+			Verbs:     []string{"get", "list"},
+			APIGroups: []string{"churro.project.io"},
+			Resources: []string{"churrouis"},
+		}
+		churroRole.Rules = append(churroRole.Rules, policyRule2)
 
 		policyRule = rbacv1.PolicyRule{
 			Verbs:     []string{"get", "list", "create"},
@@ -732,9 +746,16 @@ func (r ChurrouiReconciler) processDeployment(uiInstance uiv1alpha1.Churroui) er
 			deployment.Spec.Template.Spec.ImagePullSecrets = []v1.LocalObjectReference{ref}
 		}
 
-		deployment.ObjectMeta.Labels = map[string]string{"app": "churro-ui"}
+		deployment.ObjectMeta.Labels = map[string]string{
+			"app":    "churro-ui",
+			"crname": uiInstance.ObjectMeta.Name,
+		}
 		deployment.Name = "churro-ui"
 		deployment.Namespace = uiInstance.ObjectMeta.Namespace
+
+		pEnv := v1.EnvVar{Name: "CHURRO_UI_RESOURCE", Value: uiInstance.ObjectMeta.Name}
+
+		deployment.Spec.Template.Spec.Containers[0].Env = append(deployment.Spec.Template.Spec.Containers[0].Env, pEnv)
 
 		if err := ctrl.SetControllerReference(&uiInstance, &deployment, r.Scheme); err != nil {
 			return err
