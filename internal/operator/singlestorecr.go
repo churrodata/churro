@@ -67,6 +67,13 @@ func (r PipelineReconciler) processSinglestore(pipeline v1alpha1.Pipeline) error
 		crExists = true
 	}
 
+	var specMap map[string]interface{}
+	specMap = obj.Object["spec"].(map[string]interface{})
+	fmt.Printf("jeff singlestore admin password here is %s\n", specMap)
+	fmt.Printf("jeff singlestore admin password here is %s\n", specMap["adminHashedPassword"])
+	//specStuff := obj.Object["spec"]
+	//fmt.Printf("jeff singlestore obj spec psw here is %+v\n", specStuff)
+
 	if crExists == false {
 		// create the CR
 		r.Log.Info("Creating memsql CR...")

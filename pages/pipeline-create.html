@@ -3,34 +3,60 @@
     <head>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     </head>
-    <body>
+
+    <style type='text/css'>
+            .wfiedls{
+                display: none;
+            }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+    <script>
+        function check(elem) {
+            var dbtype1 = document.getElementById("dbtype");
+            switch(dbtype1.value) {
+                case "singlestore":
+                    $(".wfiedls").hide();
+                    break;
+                case "mysql":
+                    $(".wfiedls").show();
+                    break;
+                default:
+                    $(".wfiedls").hide();
+                    break;
+            }
+        }
+    </script>
+
+    <body onload="check(this);">
 
         {{ template "navbar" .UserEmail }}
 
         <h3>Create Pipeline</h3>
         <form action="/pipeline" method="post">
-            <div class="form-group row">
+            <div class="form-group ">
                 <label for="pipelinename" class="col-sm-2 col-form-label">Pipeline Name</label>
                 <div class="col-sm-4">
                     <input type="text" class="form-control" name="pipelinename" id="pipelinename" aria-describedby="pipelineNameHelp" placeholder="Enter pipeline name" data-toggle="tooltip" title="pipeline name of your choice">
                     <small id="pipelineHelp" class="form-text text-muted">Pipeline name which also is used as it's namespace name.</small>
                 </div>
             </div>
-            <div class="form-group row">
+            <div class="form-group ">
                 <label for="maxjobs" class="col-sm-2 col-form-label">Max Jobs</label>
                 <div class="col-sm-4">
                     <input type="text" class="form-control" name="maxjobs" id="maxjobs" value="10" data-toggle="tooltip" aria-describedby="maxjobsHelp" title="max concurrent extract jobs">
                     <small id="maxjobsHelp" class="form-text text-muted">Maximum concurrent extract jobs.</small>
                 </div>
             </div>
-            <div class="form-group row">
+            <div class="form-group ">
                 <label for="storagesize" class="col-sm-2 col-form-label">Storage Size</label>
                 <div class="col-sm-4">
                     <input type="text" class="form-control" name="storagesize" id="storagesize" value="1G" data-toggle="tooltip" aria-describedby="storagesizeHelp" title="storage size for database">
                     <small id="storagesizeHelp" class="form-text text-muted">Storage size.</small>
                 </div>
             </div>
-            <div class="form-group row">
+            <div class="form-group ">
                 <label for="accessmode" class="col-sm-2 col-form-label">Storage Access Mode</label>
                 <div class="col-sm-4">
                     <select class="form-control" id="accessmode" name="accessmode" data-toggle="tooltip" title="type of storage accessMode to use">
@@ -40,7 +66,7 @@
                     <small id="accessmodeHelp" class="form-text text-muted">AccessMode for storage.</small>
                 </div>
             </div>
-            <div class="form-group row">
+            <div class="form-group ">
                 <label for="storageclassname" class="col-sm-2 col-form-label">Storage Class Name</label>
                 <div class="col-sm-4">
                 <select class="form-control" id="storageclassname" name="storageclassname" data-toggle="tooltip" title="storage class name">
@@ -51,15 +77,31 @@
                     <small id="storageclassnameHelp" class="form-text text-muted">Storage class name.</small>
                 </div>
             </div>
-            <div class="form-group row">
+            <div class="form-group ">
                 <label for="dbtype" class="col-sm-2 col-form-label">Database Backend</label>
                 <div class="col-sm-4">
-                    <select class="form-control" id="dbtype" name="dbtype" data-toggle="tooltip" title="type of database backend to provision">
+
+                    <select onChange="check(this);" class="form-control" id="dbtype" name="dbtype" data-toggle="tooltip" title="type of database backend to provision">
+
             {{ range .SupportedDatabases }}
             <option>{{.}}</option>
             {{ end }}
                     </select>
                     <small id="dbtypeHelp" class="form-text text-muted">Database backend type.</small>
+                </div>
+            </div>
+            <div class="form-group wfiedls">
+                <label for="dbpassword" class="col-sm-2 col-form-label">Database Password</label>
+                <div class="col-sm-4">
+                    <input type="password" class="form-control" name="dbpassword" id="dbpassword" value="" data-toggle="tooltip" aria-describedby="dbpasswordHelp" title="password for database, applicable for mysql or singlestore">
+                    <small id="dbpasswordHelp" class="form-text text-muted">Database password for mysql.</small>
+                </div>
+            </div>
+            <div class="form-group wfiedls">
+                <label for="dbpassword2" class="col-sm-2 col-form-label">Confirm Database Password</label>
+                <div class="col-sm-4">
+                    <input type="password" class="form-control" name="dbpassword2" id="dbpassword2" value="" data-toggle="tooltip" aria-describedby="dbpassword2Help" title="password for database, applicable for mysql or singlestore">
+                    <small id="dbpassword2Help" class="form-text text-muted">Database password for mysql.</small>
                 </div>
             </div>
             <button type="submit" class="btn btn-primary">Save</button>
