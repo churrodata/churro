@@ -14,6 +14,8 @@ import (
 	"github.com/churrodata/churro/api/v1alpha1"
 	v1 "k8s.io/api/core/v1"
 
+	b64 "encoding/base64"
+
 	mysqlv1alpha1 "github.com/presslabs/mysql-operator/pkg/apis/mysql/v1alpha1"
 	"github.com/rs/zerolog/log"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -53,6 +55,13 @@ func (r PipelineReconciler) processMysql(pipeline v1alpha1.Pipeline) error {
 			r.Log.Error(err, "unable to unmarshal mysql secret template")
 			return err
 		}
+
+		// set password using cr password value
+		sEnc := b64.StdEncoding.EncodeToString([]byte(pipeline.Spec.AdminDataSource.Password))
+
+		mysqlsecret.Data["ROOT_PASSWORD"] = []byte(sEnc)
+		//mysqlsecret.Data["ROOT_PASSWORD"] = []byte("bm90LXNvLXNlY3VyZQ==")
+
 		mysqlsecret.ObjectMeta.Labels = map[string]string{"app": "churro", "pipeline": pipeline.ObjectMeta.Name}
 		mysqlsecret.Namespace = pipeline.ObjectMeta.Namespace
 

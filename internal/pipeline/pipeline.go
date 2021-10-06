@@ -231,15 +231,16 @@ func fillCRDefaults(cr *v1alpha1.Pipeline, pipelineName string) {
 	case domain.DatabaseMysql:
 		cr.Spec.AdminDataSource.Host = "churro-pipeline-mysql-mysql"
 		cr.Spec.AdminDataSource.Path = ""
-		cr.Spec.AdminDataSource.Password = "not-so-secure"
+		//cr.Spec.AdminDataSource.Password = "not-so-secure"
 		cr.Spec.AdminDataSource.Port = 3306
 		cr.Spec.DataSource.Host = "churro-pipeline-mysql-mysql"
 		cr.Spec.DataSource.Path = ""
-		cr.Spec.DataSource.Password = "not-so-secure"
+		//cr.Spec.DataSource.Password = "not-so-secure"
 		cr.Spec.DataSource.Port = 3306
 	case domain.DatabaseSinglestore:
 		cr.Spec.AdminDataSource.Host = "svc-memsql-cluster-ddl"
 		cr.Spec.AdminDataSource.Path = ""
+		// TODO hard coded initial password for now
 		cr.Spec.AdminDataSource.Password = "secretpass"
 		cr.Spec.AdminDataSource.Port = 3306
 		cr.Spec.DataSource.Host = "svc-memsql-cluster-ddl"

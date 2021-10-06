@@ -337,6 +337,8 @@ func (u *HandlerWrapper) CreatePipelineDetail(w http.ResponseWriter, r *http.Req
 	storageSize := r.Form["storagesize"][0]
 	storageClassName := r.Form["storageclassname"][0]
 	accessMode := r.Form["accessmode"][0]
+	dbPassword := r.Form["dbpassword"][0]
+	dbPassword2 := r.Form["dbpassword2"][0]
 	log.Info().Msg("accessMode entered by user is " + accessMode)
 	dbType := r.Form["dbtype"][0]
 
@@ -355,6 +357,12 @@ func (u *HandlerWrapper) CreatePipelineDetail(w http.ResponseWriter, r *http.Req
 	}
 	if !m.Authorized(u.DatabaseType) {
 		a := u.Copy("user not authorized to create pipelines")
+		a.ShowCreatePipeline(w, r)
+		return
+	}
+
+	if dbPassword != dbPassword2 {
+		a := u.Copy("database passwords do not match")
 		a.ShowCreatePipeline(w, r)
 		return
 	}
@@ -385,6 +393,8 @@ func (u *HandlerWrapper) CreatePipelineDetail(w http.ResponseWriter, r *http.Req
 	p.Spec.StorageClassName = storageClassName
 	p.Spec.StorageSize = storageSize
 	p.Spec.AccessMode = accessMode
+	p.Spec.AdminDataSource.Password = dbPassword
+	p.Spec.DataSource.Password = dbPassword
 
 	// create the CR to launch the pipeline on k8s
 	log.Info().Msg("about to run pipeline.CreatePipeline with dbType " + p.Spec.DatabaseType)

@@ -2,7 +2,7 @@ SAMPLE_WATCH_DIRS=/churro
 GRPC_CERTS_DIR=certs/grpc
 DB_CERTS_DIR=certs/db
 BUILDDIR=./build
-PIPELINE=pipeline1
+PIPELINE=single
 CHURRO_NS=churro
 TAG=0.0.2
 PLATFORMS="linux/amd64,linux/arm64"
@@ -208,7 +208,7 @@ port-forward-sftp-web:
 port-forward-db-console:
 	kubectl -n $(PIPELINE) port-forward svc/cockroachdb-public --address `hostname --ip-address` 26257:26257 
 port-forward-db-console-singlestore:
-	kubectl -n $(PIPELINE) port-forward --address `hostname --ip-address`  pod/memsql-studio 9090:8080
+	kubectl -n $(PIPELINE) port-forward --address `hostname --ip-address`  pod/memsql-studio 10000:8080
 port-forward-ui-db:
 	kubectl -n churro port-forward svc/cockroachdb-public --address `hostname --ip-address` 26257:26257 
 
