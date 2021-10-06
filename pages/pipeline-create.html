@@ -80,7 +80,9 @@
             <div class="form-group ">
                 <label for="dbtype" class="col-sm-2 col-form-label">Database Backend</label>
                 <div class="col-sm-4">
+
                     <select onChange="check(this);" class="form-control" id="dbtype" name="dbtype" data-toggle="tooltip" title="type of database backend to provision">
+
             {{ range .SupportedDatabases }}
             <option>{{.}}</option>
             {{ end }}
