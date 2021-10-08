@@ -394,6 +394,8 @@ func (u *HandlerWrapper) CreatePipelineDetail(w http.ResponseWriter, r *http.Req
 	p.Spec.StorageClassName = storageClassName
 	p.Spec.StorageSize = storageSize
 	p.Spec.AccessMode = accessMode
+	p.Spec.AdminDataSource.Password = dbPassword
+	p.Spec.DataSource.Password = dbPassword
 
 	// we need to base64 encode the passwords
 	sEnc := b64.StdEncoding.EncodeToString([]byte(dbPassword))
