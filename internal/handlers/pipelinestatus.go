@@ -21,7 +21,6 @@ import (
 	"github.com/churrodata/churro/api/v1alpha1"
 	"github.com/churrodata/churro/internal/authorization"
 	"github.com/churrodata/churro/internal/domain"
-	"github.com/churrodata/churro/pkg"
 	"github.com/churrodata/churro/rpc/ctl"
 	pb "github.com/churrodata/churro/rpc/ctl"
 	"github.com/gorilla/mux"
@@ -70,32 +69,10 @@ func (u *HandlerWrapper) PipelineStatusHandler(w http.ResponseWriter, r *http.Re
 		UserEmail: u.UserEmail,
 	}
 
-	_, config, err := pkg.GetKubeClient()
+	x, err := getPipelineCR(pipelineID)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
 		return
-	}
-
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	var x v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if pipelineID == pList.Items[i].Spec.Id {
-			x = pList.Items[i]
-		}
 	}
 
 	pipelineDetail.Pipeline = x
@@ -171,32 +148,10 @@ func (u *HandlerWrapper) PipelineStatusJobLogHandler(w http.ResponseWriter, r *h
 		return
 	}
 
-	_, config, err := pkg.GetKubeClient()
+	x, err := getPipelineCR(pipelineID)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
 		return
-	}
-
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	var x v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if pipelineID == pList.Items[i].Spec.Id {
-			x = pList.Items[i]
-		}
 	}
 
 	log.Info().Msg("pipeline name is " + x.Name)

@@ -12,8 +12,10 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
+	"github.com/churrodata/churro/api/v1alpha1"
 	"github.com/churrodata/churro/pkg"
 	"github.com/rs/zerolog/log"
 	storagev1 "k8s.io/api/storage/v1"
@@ -48,4 +50,33 @@ func GetSupportedDatabases() (names []string, err error) {
 	log.Info().Msg(fmt.Sprintf("got ui CR %+v\n", result))
 
 	return result.Spec.Supporteddatabases, nil
+}
+
+func getPipelineCR(pipelineID string) (x v1alpha1.Pipeline, err error) {
+	_, config, err := pkg.GetKubeClient()
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("error getting Pipeline CR")
+		return x, err
+	}
+
+	pipelineClient, err := pkg.NewClient(config, "")
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("error getting Pipeline CR")
+		return x, err
+	}
+
+	pList, err := pipelineClient.List()
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("error getting Pipeline CR")
+		return x, err
+	}
+
+	for i := 0; i < len(pList.Items); i++ {
+		if pipelineID == pList.Items[i].Spec.Id {
+			return pList.Items[i], nil
+		}
+	}
+
+	return x, errors.New("pipeline CR " + pipelineID + " not found")
+
 }

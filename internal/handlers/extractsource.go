@@ -25,10 +25,8 @@ import (
 	"time"
 
 	extractapi "github.com/churrodata/churro/api/extract"
-	"github.com/churrodata/churro/api/v1alpha1"
 	"github.com/churrodata/churro/internal/domain"
 	"github.com/churrodata/churro/internal/extractsource"
-	"github.com/churrodata/churro/pkg"
 	pb "github.com/churrodata/churro/rpc/ctl"
 	watchpb "github.com/churrodata/churro/rpc/extractsource"
 	"github.com/gorilla/mux"
@@ -59,32 +57,10 @@ func (u *HandlerWrapper) ShowCreateExtractSource(w http.ResponseWriter, r *http.
 	log.Info().Msg(fmt.Sprintf("ShowCreateExtractSource called : vars %+v\n", vars))
 	pipelineID := vars["id"]
 
-	_, config, err := pkg.GetKubeClient()
+	x, err := getPipelineCR(pipelineID)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
 		return
-	}
-
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		//return
-	}
-
-	var x v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if pipelineID == pList.Items[i].Spec.Id {
-			x = pList.Items[i]
-		}
 	}
 
 	extractSourceForm := ExtractSourceForm{
@@ -115,32 +91,10 @@ func (u *HandlerWrapper) PipelineExtractSource(w http.ResponseWriter, r *http.Re
 	wdf.PipelineID = vars["id"]
 	wdf.ExtractSourceID = vars["extractsourceid"]
 
-	_, config, err := pkg.GetKubeClient()
+	x, err := getPipelineCR(wdf.PipelineID)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
 		return
-	}
-
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	var x v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if wdf.PipelineID == pList.Items[i].Spec.Id {
-			x = pList.Items[i]
-		}
 	}
 
 	client, err := GetServiceConnection(x.Name)
@@ -420,32 +374,10 @@ func (u *HandlerWrapper) DeleteExtractSource(w http.ResponseWriter, r *http.Requ
 	pipelineID := vars["id"]
 	extractSourceID := vars["extractsourceid"]
 
-	_, config, err := pkg.GetKubeClient()
+	x, err := getPipelineCR(pipelineID)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
 		return
-	}
-
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		//return
-	}
-
-	var x v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if pipelineID == pList.Items[i].Spec.Id {
-			x = pList.Items[i]
-		}
 	}
 
 	client, err := GetServiceConnection(x.Name)
@@ -483,32 +415,10 @@ func (u *HandlerWrapper) UploadURLToExtractSource(w http.ResponseWriter, r *http
 		FileURL:         fileURL,
 	}
 
-	_, config, err := pkg.GetKubeClient()
+	x, err := getPipelineCR(pipelineID)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
 		return
-	}
-
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		//return
-	}
-
-	var x v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if pipelineID == pList.Items[i].Spec.Id {
-			x = pList.Items[i]
-		}
 	}
 
 	client, err := extractsource.GetExtractSourceServiceConnection(x.Name)
@@ -552,32 +462,10 @@ func (u *HandlerWrapper) UploadToExtractSource(w http.ResponseWriter, r *http.Re
 	pipelineID := vars["id"]
 	extractSourceID := vars["extractsourceid"]
 
-	_, config, err := pkg.GetKubeClient()
+	x, err := getPipelineCR(pipelineID)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
 		return
-	}
-
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	var x v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if pipelineID == pList.Items[i].Spec.Id {
-			x = pList.Items[i]
-		}
 	}
 
 	client, err := extractsource.GetExtractSourceServiceConnection(x.Name)

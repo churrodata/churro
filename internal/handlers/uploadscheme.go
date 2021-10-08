@@ -28,9 +28,7 @@ import (
 
 	"aqwari.net/xml/xmltree"
 	extractapi "github.com/churrodata/churro/api/extract"
-	"github.com/churrodata/churro/api/v1alpha1"
 	"github.com/churrodata/churro/internal/domain"
-	"github.com/churrodata/churro/pkg"
 	pb "github.com/churrodata/churro/rpc/ctl"
 	"github.com/gorilla/mux"
 	"github.com/rs/xid"
@@ -56,32 +54,10 @@ func (u *HandlerWrapper) UploadSchema(w http.ResponseWriter, r *http.Request) {
 	pipelineID := vars["id"]
 	extractSourceID := vars["wdid"]
 
-	_, config, err := pkg.GetKubeClient()
+	x, err := getPipelineCR(pipelineID)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
 		return
-	}
-
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	var x v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if pipelineID == pList.Items[i].Spec.Id {
-			x = pList.Items[i]
-		}
 	}
 
 	// get the extract source dir so we know the scheme we are dealing with

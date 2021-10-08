@@ -107,32 +107,10 @@ func (u *HandlerWrapper) PipelineDetailHandler(w http.ResponseWriter, r *http.Re
 	pipelineDetail.Jobs = jobsList
 	pipelineDetail.Users = usersList
 
-	_, config, err := pkg.GetKubeClient()
+	x, err := getPipelineCR(pipelineID)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
 		return
-	}
-
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		//return
-	}
-
-	var x v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if pipelineID == pList.Items[i].Spec.Id {
-			x = pList.Items[i]
-		}
 	}
 
 	pipelineDetail.Pipeline = x
@@ -281,6 +259,12 @@ func (u *HandlerWrapper) UpdatePipelineDetail(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	x, err := getPipelineCR(pipelineID)
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		return
+	}
+
 	_, config, err := pkg.GetKubeClient()
 	if err != nil {
 		log.Error().Stack().Err(err).Msg("some error")
@@ -288,28 +272,7 @@ func (u *HandlerWrapper) UpdatePipelineDetail(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	var x v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if pipelineID == pList.Items[i].Spec.Id {
-			x = pList.Items[i]
-		}
-	}
-
-	pipelineClient, err = pkg.NewClient(config, x.Name)
+	pipelineClient, err := pkg.NewClient(config, x.Name)
 	if err != nil {
 		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
@@ -433,32 +396,10 @@ func (u *HandlerWrapper) DeletePipelineDetail(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	_, config, err := pkg.GetKubeClient()
+	x, err := getPipelineCR(pipelineID)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
 		return
-	}
-
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	var x v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if pipelineID == pList.Items[i].Spec.Id {
-			x = pList.Items[i]
-		}
 	}
 
 	// delete the CR for this pipeline
@@ -491,32 +432,10 @@ func (u *HandlerWrapper) PipelineDownloadFile(w http.ResponseWriter, r *http.Req
 	log.Info().Msg("pipeline download: id " + pipelineID)
 
 	// get the CR, it holds all the credentials for this pipeline
-	_, config, err := pkg.GetKubeClient()
+	cr, err := getPipelineCR(pipelineID)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
 		return
-	}
-
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	var cr v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if pipelineID == pList.Items[i].Spec.Id {
-			cr = pList.Items[i]
-		}
 	}
 
 	// zip up the credentials

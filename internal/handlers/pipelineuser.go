@@ -17,11 +17,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/churrodata/churro/api/v1alpha1"
 	"github.com/churrodata/churro/internal/authorization"
 	"github.com/churrodata/churro/internal/db"
 	"github.com/churrodata/churro/internal/domain"
-	"github.com/churrodata/churro/pkg"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
 )
@@ -77,32 +75,10 @@ func (u *HandlerWrapper) ShowPipelineUsers(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	_, config, err := pkg.GetKubeClient()
+	x, err := getPipelineCR(pipelineUsersForm.PipelineID)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
 		return
-	}
-
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		//return
-	}
-
-	var x v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if pipelineUsersForm.PipelineID == pList.Items[i].Spec.Id {
-			x = pList.Items[i]
-		}
 	}
 
 	pipelineUsersForm.PipelineName = x.Name
@@ -264,32 +240,10 @@ func (u *HandlerWrapper) DeletePipelineUser(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	_, config, err := pkg.GetKubeClient()
+	x, err := getPipelineCR(pipelineID)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
 		return
-	}
-
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	var x v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if pipelineID == pList.Items[i].Spec.Id {
-			x = pList.Items[i]
-		}
 	}
 
 	form.PipelineName = x.Name
@@ -353,32 +307,10 @@ func (u *HandlerWrapper) PipelineUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, config, err := pkg.GetKubeClient()
+	x, err := getPipelineCR(pipelineID)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
 		return
-	}
-
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	var x v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if pipelineID == pList.Items[i].Spec.Id {
-			x = pList.Items[i]
-		}
 	}
 
 	form.PipelineName = x.Name
