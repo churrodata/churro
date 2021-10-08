@@ -20,10 +20,8 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/churrodata/churro/api/v1alpha1"
 	"github.com/churrodata/churro/internal/authorization"
 	"github.com/churrodata/churro/internal/domain"
-	"github.com/churrodata/churro/pkg"
 	pb "github.com/churrodata/churro/rpc/ctl"
 	"github.com/gorilla/mux"
 	"github.com/rs/xid"
@@ -128,31 +126,11 @@ func (u *HandlerWrapper) ShowCreateTransformFunction(w http.ResponseWriter, r *h
 		UserEmail:  u.UserEmail,
 	}
 
-	_, config, err := pkg.GetKubeClient()
+	x, err := getPipelineCR(transformFunctionForm.PipelineID)
 	if err != nil {
 		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
 		return
-	}
-
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-	}
-
-	var x v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if transformFunctionForm.PipelineID == pList.Items[i].Spec.Id {
-			x = pList.Items[i]
-		}
 	}
 
 	transformFunctionForm.PipelineName = x.Name
@@ -191,31 +169,10 @@ func (u *HandlerWrapper) TransformFunction(w http.ResponseWriter, r *http.Reques
 
 	ff.PipelineID = pipelineID
 
-	_, config, err := pkg.GetKubeClient()
+	x, err := getPipelineCR(pipelineID)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
 		return
-	}
-
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-	}
-
-	var x v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if pipelineID == pList.Items[i].Spec.Id {
-			x = pList.Items[i]
-		}
 	}
 
 	ff.PipelineName = x.Name
@@ -347,32 +304,10 @@ func (u *HandlerWrapper) DeleteTransformFunction(w http.ResponseWriter, r *http.
 		return
 	}
 
-	_, config, err := pkg.GetKubeClient()
+	x, err := getPipelineCR(pipelineID)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
 		return
-	}
-
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		//return
-	}
-
-	var x v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if pipelineID == pList.Items[i].Spec.Id {
-			x = pList.Items[i]
-		}
 	}
 
 	client, err := GetServiceConnection(x.Name)

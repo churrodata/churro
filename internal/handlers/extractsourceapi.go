@@ -15,9 +15,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/churrodata/churro/api/v1alpha1"
 	"github.com/churrodata/churro/internal/extractsource"
-	"github.com/churrodata/churro/pkg"
 	pb "github.com/churrodata/churro/rpc/extractsource"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
@@ -31,32 +29,10 @@ func (u *HandlerWrapper) StartExtractSource(w http.ResponseWriter, r *http.Reque
 	pipelineID := vars["id"]
 	extractSourceID := vars["extractsourceid"]
 
-	_, config, err := pkg.GetKubeClient()
+	x, err := getPipelineCR(pipelineID)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
 		return
-	}
-
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	var x v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if pipelineID == pList.Items[i].Spec.Id {
-			x = pList.Items[i]
-		}
 	}
 
 	client, err := extractsource.GetExtractSourceServiceConnection(x.Name)
@@ -88,32 +64,10 @@ func (u *HandlerWrapper) StopExtractSource(w http.ResponseWriter, r *http.Reques
 	pipelineID := vars["id"]
 	extractSourceID := vars["extractsourceid"]
 
-	_, config, err := pkg.GetKubeClient()
+	x, err := getPipelineCR(pipelineID)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
 		w.Write([]byte(err.Error()))
 		return
-	}
-
-	pipelineClient, err := pkg.NewClient(config, "")
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	pList, err := pipelineClient.List()
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("some error")
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	var x v1alpha1.Pipeline
-	for i := 0; i < len(pList.Items); i++ {
-		if pipelineID == pList.Items[i].Spec.Id {
-			x = pList.Items[i]
-		}
 	}
 
 	client, err := extractsource.GetExtractSourceServiceConnection(x.Name)
