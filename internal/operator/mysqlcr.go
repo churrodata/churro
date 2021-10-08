@@ -57,9 +57,9 @@ func (r PipelineReconciler) processMysql(pipeline v1alpha1.Pipeline) error {
 		}
 
 		// set password using cr password value
-		sEnc := b64.StdEncoding.EncodeToString([]byte(pipeline.Spec.AdminDataSource.Password))
 
-		mysqlsecret.Data["ROOT_PASSWORD"] = []byte(sEnc)
+		mysqlsecret.Data["ROOT_PASSWORD"] = []byte(pipeline.Spec.AdminDataSource.Password)
+
 		//mysqlsecret.Data["ROOT_PASSWORD"] = []byte("bm90LXNvLXNlY3VyZQ==")
 
 		mysqlsecret.ObjectMeta.Labels = map[string]string{"app": "churro", "pipeline": pipeline.ObjectMeta.Name}

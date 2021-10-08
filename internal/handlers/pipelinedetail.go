@@ -14,6 +14,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
+	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -395,6 +396,11 @@ func (u *HandlerWrapper) CreatePipelineDetail(w http.ResponseWriter, r *http.Req
 	p.Spec.AccessMode = accessMode
 	p.Spec.AdminDataSource.Password = dbPassword
 	p.Spec.DataSource.Password = dbPassword
+
+	// we need to base64 encode the passwords
+	sEnc := b64.StdEncoding.EncodeToString([]byte(dbPassword))
+	p.Spec.AdminDataSource.Password = sEnc
+	p.Spec.DataSource.Password = sEnc
 
 	// create the CR to launch the pipeline on k8s
 	log.Info().Msg("about to run pipeline.CreatePipeline with dbType " + p.Spec.DatabaseType)

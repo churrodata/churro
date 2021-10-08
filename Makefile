@@ -2,7 +2,7 @@ SAMPLE_WATCH_DIRS=/churro
 GRPC_CERTS_DIR=certs/grpc
 DB_CERTS_DIR=certs/db
 BUILDDIR=./build
-PIPELINE=single
+PIPELINE=fast
 CHURRO_NS=churro
 TAG=0.0.2
 PLATFORMS="linux/amd64,linux/arm64"
@@ -99,8 +99,8 @@ undeploy-mysql-operator:
 	kubectl -n $(CHURRO_NS) delete mysqlcluster/churro-ui-mysql
 	helm uninstall --namespace $(CHURRO_NS) mysql-operator
 deploy-mysql-operator:
-	#helm repo add presslabs https://presslabs.github.io/charts
-	helm install --namespace $(CHURRO_NS) mysql-operator presslabs/mysql-operator
+	helm repo add bitpoke https://helm-charts.bitpoke.io
+	helm install --namespace $(CHURRO_NS) mysql-operator bitpoke/mysql-operator
 	kubectl -n $(CHURRO_NS) create -f deploy/ui/mysql/churro-ui-mysql-secret.yaml
 	kubectl -n $(CHURRO_NS) create -f deploy/ui/mysql/churro-ui-mysql.yaml
 regcred:
@@ -162,9 +162,9 @@ compile-extractsource:
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=require_unimplemented_servers=false:. --go-grpc_opt=paths=source_relative rpc/extractsource/extractsource.proto
 	go build -o build/churro-extractsource cmd/churro-extractsource/churro-extractsource.go
 
-build-extractsource-image-local: 
+build-extractsource-image-local: compile-extractsource
 
-	docker build -f ./images/Dockerfile.churro-extractsource -t docker.io/churrodata/churro-extractsource .
+	docker build -f ./images/Dockerfile.churro-extractsource.local -t docker.io/churrodata/churro-extractsource .
 
 build-extractsource-image: 
 	docker buildx build --push --platform $(PLATFORMS) -f ./images/Dockerfile.churro-extractsource -t docker.io/churrodata/churro-extractsource:$(TAG) .
@@ -174,8 +174,8 @@ compile-ctl:
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=require_unimplemented_servers=false:. --go-grpc_opt=paths=source_relative rpc/ctl/ctl.proto
 	go build -o build/churro-ctl cmd/churro-ctl/churro-ctl.go
 
-build-ctl-image-local: 
-	docker build -f ./images/Dockerfile.churro-ctl -t docker.io/churrodata/churro-ctl .
+build-ctl-image-local: compile-ctl
+	docker build -f ./images/Dockerfile.churro-ctl.local -t docker.io/churrodata/churro-ctl .
 build-ctl-image: 
 	docker buildx build --push --platform $(PLATFORMS) -f ./images/Dockerfile.churro-ctl -t docker.io/churrodata/churro-ctl:$(TAG) .
 
@@ -211,6 +211,9 @@ port-forward-db-console-singlestore:
 	kubectl -n $(PIPELINE) port-forward --address `hostname --ip-address`  pod/memsql-studio 10000:8080
 port-forward-ui-db:
 	kubectl -n churro port-forward svc/cockroachdb-public --address `hostname --ip-address` 26257:26257 
+port-forward-mysql-db:
+	kubectl -n $(PIPELINE) port-forward svc/churro-pipeline-mysql-mysql --address `hostname --ip-address` 3306:3306 
+
 
 compile: compile-operator compile-ctl compile-extractsource compile-extract
 
