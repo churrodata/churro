@@ -93,6 +93,7 @@ rules:
   - serviceaccounts
   - services
   - namespaces
+  - configmaps
   verbs:
   - delete
   - get
