@@ -120,9 +120,9 @@ undeploy-churro-operator:
 	kubectl delete crd mysqlclusters.mysql.presslabs.org --ignore-not-found=true
 deploy-churro-operator:
 	build/namespace-check.sh $(CHURRO_NS)
-# 	kubectl -n $(CHURRO_NS) create configmap churro-templates --from-file=deploy/templates
+	kubectl -n $(CHURRO_NS) create configmap churro-templates --from-file=deploy/templates
 	kubectl create -f deploy/operator/churro.project.io_pipelines.yaml
- 	kubectl create -f deploy/ui/mysql/mysql.presslabs.org_mysqlclusters.yaml
+	kubectl create -f deploy/ui/mysql/mysql.presslabs.org_mysqlclusters.yaml
 	kubectl create -f deploy/operator/churro-ui-crd.yaml
 	kubectl create -f deploy/operator/cluster-role.yaml
 	kubectl create -f deploy/operator/cluster-role-binding.yaml
